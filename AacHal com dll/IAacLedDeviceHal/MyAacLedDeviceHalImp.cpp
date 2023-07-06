@@ -144,6 +144,7 @@ BOOL InstallDriver(
 			dbg_printf("CreateService failed! Error = %d \n", err);
 			OUTINFO_1_PARAM("CreateService failed! Error = %d \n", err);
 			return FALSE;
+
 		}
 	}
 
@@ -804,7 +805,7 @@ void block_write(unsigned int SMB_base, unsigned char slave_address, unsigned ch
 
 
 	// Step 7. Write the remaining bytes to Host Block Data Byte Register
-	for (int bSent = 0; bSent < 5; bSent++) {
+	for (int bSent = 0; bSent < count; bSent++) {
 		for (int LoopIndex = 0; LoopIndex < 1000; LoopIndex++) {
 			delay1us(100);
 			IORead(SMB_base + SMBHSTSTS, &SMB_STS);
@@ -1352,7 +1353,7 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::Synchronize(ULONG effectId, ULONGLONG 
 
 	return E_FAIL;
 }
-
+SC_HANDLE schSCManager;
 HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 {
 	m_deviceControl = deviceControl;
@@ -1364,7 +1365,7 @@ HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 	DWORD errNum = 0;
 	UCHAR  driverLocation[MAX_PATH];
 
-	SC_HANDLE schSCManager;
+	
 	schSCManager = OpenSCManager(NULL,
 		NULL,
 		SC_MANAGER_ALL_ACCESS
@@ -2146,7 +2147,7 @@ extern "C" _declspec(dllexport) int Init(void)
 	DWORD errNum = 0;
 	UCHAR  driverLocation[MAX_PATH];
 
-	SC_HANDLE schSCManager;
+	//SC_HANDLE schSCManager;
 TEST:
 	schSCManager = OpenSCManager(NULL,
 		NULL,
@@ -2185,10 +2186,14 @@ TEST:
 	}
 	else
 	{
-
+		StopDriver(schSCManager,
+			DRIVER_NAME
+		);
 		RemoveDriver(schSCManager, (LPSTR)DRIVER_NAME);
+		CloseServiceHandle(schSCManager);
 		dbg_printf("Unable to install driver. \n");
 		OUTINFO_0_PARAM("Unable to install driver. \n");
+#if 0
 		if (retry_install == 3)
 		{
 			return S_FALSE;
@@ -2197,7 +2202,7 @@ TEST:
 			retry_install++;
 			goto TEST;
 		}
-
+#endif
 	}
 
 	hDevice = CreateFileA(Device_NAME,
@@ -2249,7 +2254,7 @@ extern "C" _declspec(dllexport) int Exit(void)
 
 	DWORD errNum = 0;
 	UCHAR  driverLocation[MAX_PATH];
-
+#if 0
 	SC_HANDLE schSCManager;
 	schSCManager = OpenSCManager(NULL,
 		NULL,
@@ -2270,6 +2275,7 @@ extern "C" _declspec(dllexport) int Exit(void)
 	}
 	dbg_printf("driverLocation:%s\n\r", driverLocation);
 	OUTINFO_1_PARAM("driverLocation:%s\n\r", driverLocation);
+#endif
 #if 0
 	if (InstallDriver(schSCManager,
 		DRIVER_NAME,
@@ -2296,6 +2302,7 @@ extern "C" _declspec(dllexport) int Exit(void)
 		return S_FALSE;
 	}
 #endif
+#if 0
 	hDevice = CreateFileA(Device_NAME,
 		GENERIC_READ | GENERIC_WRITE,
 		0,
@@ -2309,6 +2316,7 @@ extern "C" _declspec(dllexport) int Exit(void)
 		OUTINFO_1_PARAM("Error: CreatFile Failed : %d\n", GetLastError());
 		return S_FALSE;
 	}
+#endif
 		CloseHandle(hDevice);
 
 		StopDriver(schSCManager,
@@ -2322,8 +2330,89 @@ extern "C" _declspec(dllexport) int Exit(void)
 		printf("remove driver\n\r");
 
 		CloseServiceHandle(schSCManager);
+	
+
 		printf("close Service\n\r");
 		return S_FALSE;
 	
+	return 0;
+}
+
+
+extern "C" _declspec(dllexport) int SetEffect_block(ULONG effectId, ULONG *colors, ULONG numberOfColors)
+{
+#if 1
+	printf("seteffect\n\r");
+	printf("effectid%d\n\r", effectId);
+	printf("numberOfColors%d\n\r", numberOfColors);
+	unsigned char buf[33] = { 0 };
+	for (int i = 0; i < 33; i++)
+		buf[i] = 0xff;
+	buf[0] = 0x00;
+	buf[1] = 0x00;
+	buf[2] = 0x03;
+
+	if (effectId == 0)
+	{
+		int i2c_count = 0;
+		for (i2c_count = 0; i2c_count < 4; i2c_count++)
+		{
+			if (i2c_addrs[i2c_count] != 0)
+			{
+				printf("write i2c addrss 0x%x", 0x60 + i2c_count);
+				//sync mode
+				if (write_slave_data(smbus_address, 0x60 + i2c_count, 0x25, 0x01) == 0xff)
+				{
+					printf("false\n\r");
+				}
+				block_write(smbus_address, 0x60 + i2c_count, 0x2f, 0xd, buf);
+
+
+				if (write_slave_data(smbus_address, 0x60 + i2c_count, 0x24, 0x01) == 0xff)
+				{
+					printf("false\n\r");
+				}
+
+			}
+		}
+	}
+#endif 
+
+
+#if 0
+	printf("seteffect\n\r");
+	printf("effectid%d\n\r", effectId);
+	printf("numberOfColors%d\n\r", numberOfColors);
+	unsigned char buf[33] = { 0 };
+	for (int i = 0; i < 33; i++)
+		buf[i] = 0xff;
+	buf[0] = 0x00;
+	buf[1] = 0x0a;
+	
+	if (effectId == 0)
+	{
+		int i2c_count = 0;
+		for (i2c_count = 0; i2c_count < 4; i2c_count++)
+		{
+			if (i2c_addrs[i2c_count] != 0)
+			{
+				printf("write i2c addrss 0x%x", 0x60 + i2c_count);
+				//sync mode
+				if (write_slave_data(smbus_address, 0x60 + i2c_count, 0x25, 0x01) == 0xff)
+				{
+					printf("false\n\r");
+				}
+				block_write(smbus_address, 0x60 + i2c_count, 0x2f , 33, buf);
+
+				
+				if (write_slave_data(smbus_address, 0x60 + i2c_count, 0x24, 0x01) == 0xff)
+				{
+					printf("false\n\r");
+				}
+
+			}
+		}
+	}
+#endif
 	return 0;
 }

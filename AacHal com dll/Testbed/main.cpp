@@ -431,7 +431,7 @@ typedef  int(*pExit)(void);
 typedef  int(*pInit)(void);
 typedef  int(*pSetOff)(void);
 typedef  int(*pSetEffect_RGB_SP)(ULONG effectId, int R, int G, int B, int SP);
-
+typedef  int(*pSetEffect_block)(ULONG effectId, ULONG *colors, ULONG numberOfColors);
 
 ULONG color[15];
 
@@ -451,12 +451,13 @@ effectId = 9//FUNC_Rainbow
 
 void main()
 {
-	HINSTANCE hDll = LoadLibrary(L"AacHal_x86.dll");
+	HINSTANCE hDll = LoadLibrary(L"AacHal_x64.dll");
 	if (!hDll)
 	{
 		return;
 	}
 	pSetEffect fSetEffect = (pSetEffect)GetProcAddress(hDll, "SetEffect");
+	pSetEffect_block fSetEffect_block = (pSetEffect_block)GetProcAddress(hDll, "SetEffect_block");
 	pInit fInit = (pInit)GetProcAddress(hDll, "Init");
 
 	pExit fExit = (pExit)GetProcAddress(hDll, "Exit");
@@ -481,16 +482,20 @@ void main()
 	{
 		printf("fSetEffect_RGB_SP error \n\r");
 	}
-
+	if (!fSetEffect_block)
+	{
+		printf("fSetEffect_block error \n\r");
+	}
 	if (!fSetEffect)
 	{
 		printf("error \n\r");
 	}
 	else
 	{
-#if 1
+		fSetEffect_block(0, &color[0], 5);
+
 		fSetEffect(1, &color[0], 5);
-#endif
+
 		fSetOff();
 		fSetEffect_RGB_SP(0, 255, 255, 255, 50);
 		fSetEffect_RGB_SP(1,255, 0, 0,50);
@@ -499,7 +504,8 @@ void main()
 		fSetEffect_RGB_SP(2, 255, 0, 0, 50);
 		fSetEffect_RGB_SP(3, 0, 255, 0, 10);
 		fSetEffect_RGB_SP(4, 0, 0, 255, 100);
-#if 1 //test static
+
+#if 0 //test static
 		for (int k = 0; k < 1; k++)
 		{
 			for (int i = 0; i < 5; i++)
