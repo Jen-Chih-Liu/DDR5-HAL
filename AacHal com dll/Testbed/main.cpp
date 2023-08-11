@@ -491,21 +491,50 @@ void main()
 		printf("error \n\r");
 	}
 	else
-	{
+	{   
+		
 		fSetEffect_block(0, &color[0], 5);
-
+		printf("test block write\n\r");
+		printf("please input any key for next test\n\r");
+		system("PAUSE");
 		fSetEffect(1, &color[0], 5);
-
+		printf("test effect 1\n\r");
+		printf("please input any key for next test\n\r");
+		system("PAUSE");
 		fSetOff();
+		printf("test led all off\n\r");
+		printf("please input any key for next test\n\r");
+		system("PAUSE");
 		fSetEffect_RGB_SP(0, 255, 255, 255, 50);
-		fSetEffect_RGB_SP(1,255, 0, 0,50);
-		fSetEffect_RGB_SP(1, 0, 255, 0, 10);
-		fSetEffect_RGB_SP(1, 0, 0, 255, 100);
-		fSetEffect_RGB_SP(2, 255, 0, 0, 50);
-		fSetEffect_RGB_SP(3, 0, 255, 0, 10);
-		fSetEffect_RGB_SP(4, 0, 0, 255, 100);
+		printf("test rgb all\n\r");
+		printf("please input any key for next test\n\r");
+		system("PAUSE");
 
-#if 0 //test static
+		fSetEffect_RGB_SP(1,255, 0, 0,50);
+		printf("test r led and effect 1\n\r");
+		printf("please input any key for next test\n\r");
+		system("PAUSE");
+		fSetEffect_RGB_SP(1, 0, 255, 0, 10);
+		printf("test g led and effect 1\n\r");
+		printf("please input any key for next test\n\r");
+		system("PAUSE");
+		fSetEffect_RGB_SP(1, 0, 0, 255, 100);
+		printf("test b led and effect 1\n\r");
+		printf("please input any key for next test\n\r");
+		system("PAUSE");
+		fSetEffect_RGB_SP(2, 255, 0, 0, 50);
+		printf("test b led and effect 2\n\r");
+		printf("please input any key for next test\n\r");
+		system("PAUSE");
+		fSetEffect_RGB_SP(3, 0, 255, 0, 10);
+		printf("test g led and effect 3\n\r");
+		printf("please input any key for next test\n\r");
+		system("PAUSE");
+		fSetEffect_RGB_SP(4, 0, 0, 255, 100);
+		printf("test b led and effect 4\n\r");
+		printf("please input any key for next test\n\r");
+		system("PAUSE");
+#if 1 //test static
 		for (int k = 0; k < 1; k++)
 		{
 			for (int i = 0; i < 5; i++)
@@ -514,19 +543,25 @@ void main()
 			}
 			fSetEffect(0, &color[0], 5);
 			// printf("pass \n\r");
-
+			printf("test static\n\r");
+			printf("please input any key for next test\n\r");
+			system("PAUSE");
 			for (int i = 0; i < 5; i++)
 			{
 				color[i] = 0x00ff00;
 			}
 			fSetEffect(0, &color[0], 5);
-			// printf("pass \n\r");
+			printf("test static\n\r");
+			printf("please input any key for next test\n\r");
+			system("PAUSE");
 			for (int i = 0; i < 5; i++)
 			{
 				color[i] = 0xff0000;
 			}
 			fSetEffect(0, &color[0], 5);
-			// printf("pass \n\r");
+			printf("test static\n\r");
+			printf("please input any key for next test\n\r");
+			system("PAUSE");
 
 
 			for (int i = 0; i < 5; i++)
@@ -534,14 +569,17 @@ void main()
 				color[i] = 0x00000000;
 			}
 			fSetEffect(0, &color[0], 5);
-			printf("pass \n\r");
+			printf("test all off\n\r");
+			printf("please input any key for next test\n\r");
+			system("PAUSE");
 
 		}
 #endif
 	}
 
 
-
+	printf("end test\n\r");
+	
 
  if (!fExit)
  {

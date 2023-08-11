@@ -763,6 +763,113 @@ unsigned char write_slave_data(unsigned int SMB_base, unsigned char slave_addres
 }
 
 
+void block_read(unsigned int SMB_base, unsigned char slave_address, unsigned char index)
+{
+	unsigned char  data[32] = { 0 };
+	// Initial SMBus
+	unsigned char temp;
+	int Fail_CNT;
+	unsigned char SMB_STS;
+	unsigned bSent, bSent2, LoopCnt;
+	int LoopIndex;
+	IOWrite(SMB_base + 0x0D, 0x00);
+	Fail_CNT = 0;
+	unsigned char  Blockcount = 0;
+	do {
+		IOWrite(SMB_base + SMBHSTSTS, 0xFF);
+		IORead(SMB_base + SMBHSTSTS, &SMB_STS);
+		Fail_CNT++;
+	} while (SMB_STS != 0x00 && Fail_CNT < 100);
+	if (Fail_CNT > MAX_TIMEOUT) {
+		printf("timeout\n\r");
+		return;
+	}
+	// Step 2. Write the Slave Address in Address Register
+	IOWrite(SMB_base + SMBHSTADD, (slave_address << 1 | 1));             // Read protocol
+	// Step 3. Write Index in Command Register
+	IOWrite(SMB_base + SMBHSTCMD, index);
+	// Step 4. Set SMB_CMD for Block Command
+	IOWrite(SMB_base + SMBHSTCNT, 0x54);
+
+	// Step 5. Read the data bytes from Host Block Data Byte Register
+	for (bSent = 0; bSent <= 0x20; bSent++) {                           // Max: 32 bytes.
+		   // Wait until the previous byte is sent out
+		for (LoopIndex = 0; LoopIndex < 1000; LoopIndex++) {
+			IORead((SMB_base + SMBHSTSTS), &SMB_STS);
+			if ((SMB_STS & 0x80))
+			{
+				break;
+			}
+																   // Delay 1 ms
+		}
+		IORead((SMB_base + SMBHSTSTS), &SMB_STS);
+		if (SMB_STS == 0x00) {                // Byte Done bit is not set
+			printf("SMBus Failed: Byte done for Block command = 0 !\n\r");
+			return ;
+		}
+
+		if (SMB_STS & 0x1C) {
+			if (SMB_STS & 0x04) {
+				printf("SMBus Failed: DEV_ERR (Cmd/cycle/time-out) ![%2X]", SMB_STS);
+				
+			}
+			if (SMB_STS & 0x08) {
+				printf("SMBus Failed: BUS_ERR (transaction collision) ![%2X]", SMB_STS);
+				
+			}
+			if (SMB_STS & 0x10) {
+			    printf("SMBus Failed: FAILED (failed bus transaction) ![%2X]", SMB_STS);
+				
+			}
+			IOWrite(SMB_base + SMBHSTSTS, 0x1C);                      // Clear error status and INUSE_STS/INTR bits.
+			return ;
+		}
+
+
+
+		if (bSent == 0) {
+			 IORead(SMB_base + SMBHSTDAT0,&Blockcount);    // Retrieve the block count value
+		}
+		IORead(SMB_base + SMBBLKDAT, &temp);                // Retrieve the next data byte.
+		data[bSent] = temp;                // Retrieve the next data byte.
+		IOWrite(SMB_base + SMBHSTSTS, 0x80);                      // Clear byte done bit to request another byte read.
+		if ((bSent + 1) >= Blockcount) {
+			break;  // Reach the block count number
+		}
+	}
+	LoopCnt = 1000;
+	for (LoopIndex = 0; LoopIndex < LoopCnt; LoopIndex++) {
+		//       my_delay(1);                                                // delay one millisecond
+		IORead(SMB_base + SMBHSTSTS, &SMB_STS);
+		if (SMB_STS & 0x01) continue;                               // HOST is still busy
+		if (SMB_STS & 0x02) break;                                  // Termination of the SMBus command.
+	}
+
+	IOWrite(SMB_base + SMBHSTSTS, 0x42);                                 // Clear INUSE_STS and INTR bits.
+
+	//========= Time-out or completion of the SMBus command. To check the SMBus host status bits.
+	if (SMB_STS & 0x1C) {
+		if (SMB_STS & 0x04) {
+			printf("SMBus Failed: DEV_ERR (Cmd/cycle/time-out) ![%2X]", SMB_STS);
+			
+		}
+		if (SMB_STS & 0x08) {
+			printf("SMBus Failed: BUS_ERR (transaction collision) ![%2X]", SMB_STS);
+			
+		}
+		if (SMB_STS & 0x10) {
+			printf("SMBus Failed: FAILED (failed bus transaction) ![%2X]", SMB_STS);
+			
+		}
+		IOWrite(SMB_base + SMBHSTSTS, 0x1C);                       // Clear error status and INUSE_STS/INTR bits.
+		return ;
+	}
+	if ((SMB_STS & 0x01) == 0x01) {
+		printf("SMBus Failed: HOST_BUSY ![%2X]", SMB_STS);
+		IOWrite(SMB_base + SMBHSTSTS, 0x42);                             // Clear INUSE_STS and INTR bits.
+		return ;
+	}
+}
 #if 1
 void block_write(unsigned int SMB_base, unsigned char slave_address, unsigned char index, unsigned char count, unsigned char* buffer)
 {
@@ -1438,6 +1545,8 @@ HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 		if (temp != 0xff)
 		{
 			i2c_addrs[loccunt] = 1; //devices detect
+			printf("\nSA 0x%x\n", 0x60 + loccunt);
+			getchar();
 		}
 		else {
 			i2c_addrs[loccunt] = 0;
