@@ -1,0 +1,9 @@
+*.obj
+*.pch
+*.ipch
+*.log
+*.tlog
+*.pdb
+*.lib
+*.dll
+*.mis

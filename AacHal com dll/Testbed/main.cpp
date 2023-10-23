@@ -424,178 +424,9 @@ void doDefault(LedCapability cap, IAacLedDevice** device, LedEffect effect)
 
 
 
-#include "..\IAacLedDeviceHal\MyAacLedDeviceHalImp.h"
-typedef  int(*pSetEffect)(ULONG effectId, ULONG *colors, ULONG numberOfColors);
-typedef  int(*pInit)(void);
-typedef  int(*pExit)(void);
-typedef  int(*pInit)(void);
-typedef  int(*pSetOff)(void);
-typedef  int(*pSetEffect_RGB_SP)(ULONG effectId, int R, int G, int B, int SP);
-typedef  int(*pSetEffect_block)(ULONG effectId, ULONG *colors, ULONG numberOfColors);
-
-ULONG color[15];
-
-/*
-//function
-effectId = 0//FUNC_STATIC
-effectId = 1//FUNC_Breathing
-effectId = 2//FUNC_Strobe
-effectId = 3//FUNC_Cycling
-effectId = 4//FUNC_Random
-effectId = 5//FUNC_Music 
-effectId = 6//FUNC_Wave
-effectId = 7//FUNC_Spring
-effectId = 8//FUNC_Water
-effectId = 9//FUNC_Rainbow
-*/
 
 void main()
 {
-	HINSTANCE hDll = LoadLibrary(L"AacHal_x64.dll");
-	if (!hDll)
-	{
-		return;
-	}
-	pSetEffect fSetEffect = (pSetEffect)GetProcAddress(hDll, "SetEffect");
-	pSetEffect_block fSetEffect_block = (pSetEffect_block)GetProcAddress(hDll, "SetEffect_block");
-	pInit fInit = (pInit)GetProcAddress(hDll, "Init");
-
-	pExit fExit = (pExit)GetProcAddress(hDll, "Exit");
-	pSetOff fSetOff = (pSetOff)GetProcAddress(hDll, "SetOff");
-	pSetEffect_RGB_SP fSetEffect_RGB_SP = (pSetEffect_RGB_SP)GetProcAddress(hDll, "SetEffect_RGB_SP");
-	if (!fInit)
-	{
-		printf("error \n\r");
-	}
-	else
-	{
-		if (fInit() == 1)
-			return;
-	}
-
-	if (!fSetOff)
-	{
-		printf("fSetOff error \n\r");
-	}
-
-	if (!fSetEffect_RGB_SP)
-	{
-		printf("fSetEffect_RGB_SP error \n\r");
-	}
-	if (!fSetEffect_block)
-	{
-		printf("fSetEffect_block error \n\r");
-	}
-	if (!fSetEffect)
-	{
-		printf("error \n\r");
-	}
-	else
-	{   
-		
-		fSetEffect_block(0, &color[0], 5);
-		printf("test block write\n\r");
-		printf("please input any key for next test\n\r");
-		system("PAUSE");
-		fSetEffect(1, &color[0], 5);
-		printf("test effect 1\n\r");
-		printf("please input any key for next test\n\r");
-		system("PAUSE");
-		fSetOff();
-		printf("test led all off\n\r");
-		printf("please input any key for next test\n\r");
-		system("PAUSE");
-		fSetEffect_RGB_SP(0, 255, 255, 255, 50);
-		printf("test rgb all\n\r");
-		printf("please input any key for next test\n\r");
-		system("PAUSE");
-
-		fSetEffect_RGB_SP(1,255, 0, 0,50);
-		printf("test r led and effect 1\n\r");
-		printf("please input any key for next test\n\r");
-		system("PAUSE");
-		fSetEffect_RGB_SP(1, 0, 255, 0, 10);
-		printf("test g led and effect 1\n\r");
-		printf("please input any key for next test\n\r");
-		system("PAUSE");
-		fSetEffect_RGB_SP(1, 0, 0, 255, 100);
-		printf("test b led and effect 1\n\r");
-		printf("please input any key for next test\n\r");
-		system("PAUSE");
-		fSetEffect_RGB_SP(2, 255, 0, 0, 50);
-		printf("test b led and effect 2\n\r");
-		printf("please input any key for next test\n\r");
-		system("PAUSE");
-		fSetEffect_RGB_SP(3, 0, 255, 0, 10);
-		printf("test g led and effect 3\n\r");
-		printf("please input any key for next test\n\r");
-		system("PAUSE");
-		fSetEffect_RGB_SP(4, 0, 0, 255, 100);
-		printf("test b led and effect 4\n\r");
-		printf("please input any key for next test\n\r");
-		system("PAUSE");
-#if 1 //test static
-		for (int k = 0; k < 1; k++)
-		{
-			for (int i = 0; i < 5; i++)
-			{
-				color[i] = 0x0000ff;
-			}
-			fSetEffect(0, &color[0], 5);
-			// printf("pass \n\r");
-			printf("test static\n\r");
-			printf("please input any key for next test\n\r");
-			system("PAUSE");
-			for (int i = 0; i < 5; i++)
-			{
-				color[i] = 0x00ff00;
-			}
-			fSetEffect(0, &color[0], 5);
-			printf("test static\n\r");
-			printf("please input any key for next test\n\r");
-			system("PAUSE");
-			for (int i = 0; i < 5; i++)
-			{
-				color[i] = 0xff0000;
-			}
-			fSetEffect(0, &color[0], 5);
-			printf("test static\n\r");
-			printf("please input any key for next test\n\r");
-			system("PAUSE");
-
-
-			for (int i = 0; i < 5; i++)
-			{
-				color[i] = 0x00000000;
-			}
-			fSetEffect(0, &color[0], 5);
-			printf("test all off\n\r");
-			printf("please input any key for next test\n\r");
-			system("PAUSE");
-
-		}
-#endif
-	}
-
-
-	printf("end test\n\r");
-	
-
- if (!fExit)
- {
-	 printf("error \n\r");
- }
- else
- {
-	 fExit();
- }
-
-
-    FreeLibrary(hDll);
-
-
-
-#if 0
 	HRESULT hr;
 	IUnknown *pUnknown;
 	IAacLedDeviceHal* hal;
@@ -611,7 +442,11 @@ void main()
 	hr = CoCreateInstance(CLSID_MYLEDDEVICE, NULL, CLSCTX_INPROC_SERVER,
 		IID_IAacLedDeviceHal, (void **)&hal); 
 	if (!SUCCEEDED(hr))
+	{
+		printf("false\n\r");
 		return;
+	}
+	printf("end\n\r");
 
 	hal->AddRef();
 	ULONG count = 0;
@@ -656,7 +491,7 @@ void main()
 		{ 0xFF, &doDefault }
 	};
 
-
+#if 1
 
 	for (int i = 0; i < devices_vector.size(); ++i)
 		for each(LedEffect effect  in caps[i].effects)
@@ -664,4 +499,5 @@ void main()
 			(*getFunction[effect.id])(caps[i], devices_vector[i], effect);
 		}
 #endif
+	hal->Release();
 }
