@@ -4,6 +4,4 @@
 *.log
 *.tlog
 *.pdb
-*.lib
-*.dll
 *.mis
