@@ -101,7 +101,7 @@ void LeaveMutexDll(void)
 	ReleaseMutex(m_hHalMutexDll);
 }
 
-void EnterMutexDll(void)
+int EnterMutexDll(void)
 {
 	DWORD result;
 	// result = WaitForSingleObject(m_hMutex, 1000);
@@ -109,9 +109,11 @@ void EnterMutexDll(void)
 
 	if (result == WAIT_OBJECT_0)
 	{
+		return 0;//pass 
 	}
 	else
 	{
+		return 1; //false
 	}
 }
 
@@ -2449,7 +2451,8 @@ extern "C" _declspec(dllexport) int SetEffect(ULONG effectId, ULONG *colors, ULO
 	dbg_printf("seteffect\n\r");
 	dbg_printf("effectid%d\n\r", effectId);
 	dbg_printf("numberOfColors%d\n\r", numberOfColors);
-	EnterMutexDll();
+	if (EnterMutexDll() == 1)
+		return 1; //false
 	int i2c_count = 0;
 	//clear led light sync
 	if (i2c_mem_slot_cnt > 1)
@@ -2718,7 +2721,8 @@ extern "C" _declspec(dllexport) int SetEffect_RGB_SP(ULONG effectId, int R, int 
 {
 	ULONG numberOfColors = 8; 
 	int i2c_count = 0;
-	EnterMutexDll();
+	if (EnterMutexDll() == 1)
+		return 1; //false
 	//clear led light sync
 	if (i2c_mem_slot_cnt > 1)
 	{
@@ -3061,7 +3065,8 @@ int SetOff_internal(void)
 
 extern "C" _declspec(dllexport) int SetOff(void)
 {
-	EnterMutexDll();
+	if (EnterMutexDll() == 1)
+		return 1; //false
 
 		int i2c_count = 0;		
 		//clear led light sync
@@ -3127,7 +3132,7 @@ extern "C" _declspec(dllexport) int SetOff(void)
 		}
 
 		LeaveMutexDll();
-	return 0;
+	return 0; //pass
 }
 
 
@@ -3363,7 +3368,8 @@ extern "C" _declspec(dllexport) int Exit(void)
 extern "C" _declspec(dllexport) int SetEffect_block(ULONG effectId, ULONG *colors, ULONG numberOfColors)
 {
 #if 1
-	EnterMutexDll();
+	if (EnterMutexDll() == 1)
+		return 1; //false
 	dbg_printf("seteffect\n\r");
 	dbg_printf("effectid%d\n\r", effectId);
 	dbg_printf("numberOfColors%d\n\r", numberOfColors);
@@ -3445,7 +3451,8 @@ extern "C" _declspec(dllexport) int SetEffect_block(ULONG effectId, ULONG *color
 extern "C" _declspec(dllexport) void IAP_ReadVersion(void)
 {
 	int loccunt = 0;
-	EnterMutexDll();
+	if (EnterMutexDll() == 1)
+		return ; //false
 	//clear address check;
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
@@ -3470,7 +3477,8 @@ extern "C" _declspec(dllexport) void IAP_ReadVersion(void)
 extern "C" _declspec(dllexport) void IAP_ReadBoot(void)
 {
 	int loccunt = 0;
-	EnterMutexDll();
+	if (EnterMutexDll() == 1)
+		return ; //false
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
 
@@ -3487,7 +3495,8 @@ extern "C" _declspec(dllexport) void IAP_ReadBoot(void)
 extern "C" _declspec(dllexport) void IAP_ErasePage2KB(unsigned int address)
 {
 	int loccunt = 0;
-	EnterMutexDll();
+	if (EnterMutexDll() == 1)
+		return ; //false
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
 
@@ -3535,7 +3544,8 @@ extern "C" _declspec(dllexport) void IAP_WriteWord(unsigned int address, unsigne
 extern "C" _declspec(dllexport) void IAP_Write_16Byte(unsigned int address, unsigned char* flashdata_array)
 {
 	int loccunt = 0;
-	EnterMutexDll();
+	if (EnterMutexDll() == 1)
+		return ; //false
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
 
@@ -3584,7 +3594,8 @@ extern "C" _declspec(dllexport) void IAP_Read_16Byte(unsigned int address, unsig
 {
 
 	int loccunt = 0;
-	EnterMutexDll();
+	if (EnterMutexDll() == 1)
+		return ; //false
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
 
