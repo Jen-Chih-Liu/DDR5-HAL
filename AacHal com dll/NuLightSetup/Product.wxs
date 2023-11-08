@@ -30,7 +30,7 @@
   <Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="$(var.PlatformProgramFilesFolder)">
-        <!-- <Directory Id="INSTALLFOLDER" Name="AacSetup" /> -->
+        <!-- <Directory Id="INSTALLFOLDER" Name="NuLightSetup" /> -->
         <Directory Id="COMPANYFOLDER" Name="$(var.CompanyFolder)">
           <Directory Id="INSTALLFOLDER" Name="$(var.InstallFolder)" />
         </Directory>

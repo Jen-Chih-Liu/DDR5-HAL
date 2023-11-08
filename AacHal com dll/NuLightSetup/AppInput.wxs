@@ -11,8 +11,7 @@
       </Component>
       <?if $(var.Platform) = x64 ?>
         <Component Id="HAL_X64" Guid="{D5587EFF-81EC-47E5-9EF7-B6ADDA9F1C19}">
-          <File Id="HAL_DLL_X64" KeyPath="yes" Source="$(var.SolutionDir)$(var.Platform)\$(var.Configuration)\$(var.HalDllFile_X64)" />
-      
+          <File Id="HAL_DLL_X64" KeyPath="yes" Source="$(var.SolutionDir)$(var.Platform)\$(var.Configuration)\$(var.HalDllFile_X64)" />      
           <File Id="SYS_File_X64" KeyPath="no" Source="$(var.SolutionDir)$(var.Configuration)\$(var.SYSFile_X64)" />
         </Component>
       <?endif ?>

@@ -6,8 +6,9 @@
     <ProductVersion>3.10</ProductVersion>
     <ProjectGuid>7e7d6dc7-5754-4e59-a581-eee0d88a76a8</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>AacSetup</OutputName>
+    <OutputName>NuLightSetup</OutputName>
     <OutputType>Package</OutputType>
+    <Name>NuLightSetup</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>

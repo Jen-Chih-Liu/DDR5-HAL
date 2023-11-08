@@ -2,22 +2,22 @@
 <Include>
 
   <!-- The GUID of your HAL. This GUID is the same as the one defined in config.h of the sulotuion AacHal-->
-  <?define HAL_CLSID = 11111111-1111-1111-1111-111111111111 ?>
+  <?define HAL_CLSID = 3CB4CFDA-1D77-4586-AFED-A7FADB4F5477 ?>
 
   <!-- The unique GUID of your install package. Please Generate unique GUIDs to replace these-->
 
-  <?define MyProductUpgradeCode = 22222222-2222-2222-2222-222222222222 ?>
+  <?define MyProductUpgradeCode = EFB88B4B-21A5-4333-B414-0F566F587011 ?>
   <?if $(var.Platform) = x64 ?>
-  <?define MyProductId = 11111111-1111-1111-1111-111111111111 ?>  
+  <?define MyProductId = F04929B1-BA69-49B5-A56B-DC4188DC8305 ?>  
   <?else ?>
-  <?define MyProductId = 33333333-3333-3333-3333-333333333333 ?>
+  <?define MyProductId = C68BC519-72EC-41DD-9EFF-DC3244479911 ?>
   <?endif ?>
 
-  
-  <?define MyCompanyShortName = "XXXX" ?>      <!-- The short name of your company used for naming the folder. For example: "ASUS"-->
-  <?define MyCompanyFullName = "XXXX XXXX" ?>  <!-- The full name of company name. For example: "ASUSTek COMPUTER INC." -->
-  <?define HalName = "XXXX" ?>           <!-- Set your HAL Name -->
-  <?define HalDescription = "XXXX" ?>    <!-- Set your HAL description -->
+
+  <?define MyCompanyShortName = "NUVOTON" ?>      <!-- The short name of your company used for naming the folder. For example: "ASUS"-->
+  <?define MyCompanyFullName = "NUVOTON" ?>  <!-- The full name of company name. For example: "ASUSTek COMPUTER INC." -->
+  <?define HalName = "NuDDR5Light" ?>           <!-- Set your HAL Name -->
+  <?define HalDescription = "NUVOTON DDR5 LIGHT" ?>    <!-- Set your HAL description -->
   <?define HalDllFile_X86 = "AacHal_x86.dll" ?>   <!-- If you does change the dll name, keep it-->
   <?define HalDllFile_X64 = "AacHal_x64.dll" ?>   <!-- If you does change the dll name, keep it-->
   <?define SYSFile_X64 = "MyPortIO_x64.sys" ?>   <!-- If you does change the dll name, keep it-->

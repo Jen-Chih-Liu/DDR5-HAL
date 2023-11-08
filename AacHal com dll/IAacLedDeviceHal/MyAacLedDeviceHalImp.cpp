@@ -13,18 +13,18 @@
 #include "atlbase.h"
 #include "atlstr.h"
 
-//#define dbg_printf(fmt, ...) 
-#define dbg_printf printf
+#define dbg_printf(fmt, ...) 
+//#define dbg_printf printf
 #define ddr_i2c_address 0x70
 #define mem_slot 8
-#if 0
+#if 1
 #define OUTINFO_0_PARAM(fmt, ...) 
 #define OUTINFO_1_PARAM(fmt, ...) 
 #define OUTINFO_2_PARAM(fmt, ...) 
 #define OUTINFO_3_PARAM(fmt, ...)
 #endif 
 
-#if 1
+#if 0
 #define OUTINFO_0_PARAM(fmt) {CHAR sOut[256];CHAR sfmt[50];sprintf_s(sfmt,"%s%s","INFO--",fmt);sprintf_s(sOut,(sfmt));OutputDebugStringW(CA2W(sOut));}    
 #define OUTINFO_1_PARAM(fmt, var) { CHAR sOut[256]; CHAR sfmt[50]; sprintf_s(sfmt, "%s%s", "INFO--", fmt); sprintf_s(sOut, (sfmt), var); OutputDebugStringW(CA2W(sOut)); }
 #define OUTINFO_2_PARAM(fmt, var1, var2) { CHAR sOut[256]; CHAR sfmt[50]; sprintf_s(sfmt, "%s%s", "INFO--", fmt); sprintf_s(sOut, (sfmt), var1, var2); OutputDebugStringW(CA2W(sOut)); }
@@ -77,6 +77,43 @@ volatile char i2c_mem_slot_cnt;
 #define MR55 0x37	//LED Speed(for Build - in Mode only)
 #define MR56 0x38	//LED Brightness(for Build - in Mode only)
 #define MR62 62
+HANDLE m_hHalMutexDll;
+void InitMutexDll(void)
+{
+	SECURITY_DESCRIPTOR sid;
+
+	::InitializeSecurityDescriptor(&sid, SECURITY_DESCRIPTOR_REVISION);
+	::SetSecurityDescriptorDacl(&sid, TRUE, NULL, FALSE);
+	SECURITY_ATTRIBUTES sa;
+
+	sa.nLength = sizeof SECURITY_ATTRIBUTES;
+	sa.bInheritHandle = FALSE;
+	sa.lpSecurityDescriptor = &sid;
+
+	m_hHalMutexDll = CreateMutex(
+		&sa,              // security attributes
+		FALSE,             // initially not owned
+		MY_MUTEXT_NAME);             // SMBus Mutex name
+}
+
+void LeaveMutexDll(void)
+{
+	ReleaseMutex(m_hHalMutexDll);
+}
+
+void EnterMutexDll(void)
+{
+	DWORD result;
+	// result = WaitForSingleObject(m_hMutex, 1000);
+	result = WaitForSingleObject(m_hHalMutexDll, MUTEX_WAITTINGTIME);
+
+	if (result == WAIT_OBJECT_0)
+	{
+	}
+	else
+	{
+	}
+}
 
 /*
 This function is designed to install a driver by attempting to create a 
@@ -2221,17 +2258,15 @@ HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 	int loccunt = 0;
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
-		unsigned char temp = 0xff;
-		unsigned char rel = 0xff;
-		rel=read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x01,&temp); //check ddr5 id
-		dbg_printf("read 0x01:0x%x\n\r", temp);
-		OUTINFO_1_PARAM("read 0x01:0x%x\n\r", temp);
-		if ((temp != 0xff)&&(rel!=0xff))
+		unsigned char nuvoton_id = 0xff;
+		unsigned char xor = 0xff;
+		read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x03, &nuvoton_id); //check ddr5 id
+		write_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, 0x5a);
+		read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, &xor); //check ddr5 id
+		if ((nuvoton_id == 0xda) && (xor == 0x5a))
 		{
 			i2c_addrs[loccunt] = 1; //devices detect
-			dbg_printf("read 0x01:0x%x\n\r", temp);
-			OUTINFO_1_PARAM("read 0x01:0x%x\n\r", temp);
-			i2c_mem_slot_cnt= i2c_mem_slot_cnt +1;
+			i2c_mem_slot_cnt = i2c_mem_slot_cnt + 1;
 		}
 		else {
 			i2c_addrs[loccunt] = 0;
@@ -2414,7 +2449,7 @@ extern "C" _declspec(dllexport) int SetEffect(ULONG effectId, ULONG *colors, ULO
 	dbg_printf("seteffect\n\r");
 	dbg_printf("effectid%d\n\r", effectId);
 	dbg_printf("numberOfColors%d\n\r", numberOfColors);
-
+	EnterMutexDll();
 	int i2c_count = 0;
 	//clear led light sync
 	if (i2c_mem_slot_cnt > 1)
@@ -2673,7 +2708,7 @@ extern "C" _declspec(dllexport) int SetEffect(ULONG effectId, ULONG *colors, ULO
 			}
 		}
 	}
-
+	LeaveMutexDll();
 	return 0;
 }
 
@@ -2683,6 +2718,7 @@ extern "C" _declspec(dllexport) int SetEffect_RGB_SP(ULONG effectId, int R, int 
 {
 	ULONG numberOfColors = 8; 
 	int i2c_count = 0;
+	EnterMutexDll();
 	//clear led light sync
 	if (i2c_mem_slot_cnt > 1)
 	{
@@ -2965,7 +3001,7 @@ extern "C" _declspec(dllexport) int SetEffect_RGB_SP(ULONG effectId, int R, int 
 			}
 		}
 	}
-
+	LeaveMutexDll();
 	return 0;
 }
 int SetOff_internal(void)
@@ -3025,7 +3061,7 @@ int SetOff_internal(void)
 
 extern "C" _declspec(dllexport) int SetOff(void)
 {
-
+	EnterMutexDll();
 
 		int i2c_count = 0;		
 		//clear led light sync
@@ -3090,7 +3126,7 @@ extern "C" _declspec(dllexport) int SetOff(void)
 			
 		}
 
-
+		LeaveMutexDll();
 	return 0;
 }
 
@@ -3190,18 +3226,12 @@ TEST:
 	int loccunt = 0;
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
-		//dbg_printf("i2c address:0x%x\n\r", ddr_i2c_address + loccunt);
-		//OUTINFO_1_PARAM("i2c address:0x%x\n\r", ddr_i2c_address + loccunt);
-		unsigned char temp = 0xff;
-		unsigned char rel = 0xff;
-		rel=read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x01,&temp); //check ddr5 id
-		//dbg_printf("read 0x01:0x%x\n\r", temp);
-		//OUTINFO_1_PARAM("read 0x01:0x%x\n\r", temp);
-
-		rel = read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x00, &temp); //check ddr5 id
-		//dbg_printf("read 0x00:0x%x\n\r", temp);
-		//OUTINFO_1_PARAM("read 0x00:0x%x\n\r", temp);
-		if ((temp != 0xff) && (rel !=0xff))
+		unsigned char nuvoton_id = 0xff;
+		unsigned char xor = 0xff;
+		read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x03, &nuvoton_id); //check ddr5 id
+		write_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, 0x5a);
+		read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, &xor); //check ddr5 id
+		if ((nuvoton_id ==0xda)&& (xor == 0x5a))
 		{
 			i2c_addrs[loccunt] = 1; //devices detect
 			i2c_mem_slot_cnt = i2c_mem_slot_cnt + 1;
@@ -3215,13 +3245,25 @@ TEST:
 	    (i2c_addrs[4] == 0) && (i2c_addrs[5] == 0) && (i2c_addrs[6] == 0) && (i2c_addrs[7] == 0)
 		)
 		return S_FALSE;
+	if (i2c_mem_slot_cnt >= 1)
+	{
+		//initial mux
+		InitMutexDll();
+	}
+
+	return 0;//pass
+
 #endif
+
+
+#if 0
 	//init i2c mem decect array
 	for (int i = 0; i < mem_slot; i++)
 	{
 		if (i2c_addrs[i] != 0)
 			printf("i2c address detect:0x%x\n\r", ddr_i2c_address + i);
 	}
+#endif 
 	return 0;
 }
 
@@ -3310,7 +3352,7 @@ extern "C" _declspec(dllexport) int Exit(void)
 
 		CloseServiceHandle(schSCManager);
 	
-
+		CloseHandle(m_hHalMutexDll); //close handler
 		dbg_printf("close Service\n\r");
 		return S_FALSE;
 	
@@ -3321,6 +3363,7 @@ extern "C" _declspec(dllexport) int Exit(void)
 extern "C" _declspec(dllexport) int SetEffect_block(ULONG effectId, ULONG *colors, ULONG numberOfColors)
 {
 #if 1
+	EnterMutexDll();
 	dbg_printf("seteffect\n\r");
 	dbg_printf("effectid%d\n\r", effectId);
 	dbg_printf("numberOfColors%d\n\r", numberOfColors);
@@ -3393,6 +3436,7 @@ extern "C" _declspec(dllexport) int SetEffect_block(ULONG effectId, ULONG *color
 		}
 	}
 #endif
+	LeaveMutexDll();
 	return 0;
 }
 
@@ -3401,7 +3445,7 @@ extern "C" _declspec(dllexport) int SetEffect_block(ULONG effectId, ULONG *color
 extern "C" _declspec(dllexport) void IAP_ReadVersion(void)
 {
 	int loccunt = 0;
-
+	EnterMutexDll();
 	//clear address check;
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
@@ -3421,10 +3465,12 @@ extern "C" _declspec(dllexport) void IAP_ReadVersion(void)
 			i2c_addrs[loccunt] = 0;
 		}
 	}
+	LeaveMutexDll();
 }
 extern "C" _declspec(dllexport) void IAP_ReadBoot(void)
 {
 	int loccunt = 0;
+	EnterMutexDll();
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
 
@@ -3435,11 +3481,13 @@ extern "C" _declspec(dllexport) void IAP_ReadBoot(void)
 			dbg_printf("boot:0x%x\n\r", temp);
 		}
 	}
+	LeaveMutexDll();
 }
 
 extern "C" _declspec(dllexport) void IAP_ErasePage2KB(unsigned int address)
 {
 	int loccunt = 0;
+	EnterMutexDll();
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
 
@@ -3457,6 +3505,7 @@ extern "C" _declspec(dllexport) void IAP_ErasePage2KB(unsigned int address)
 			block_write(smbus_address, ddr_i2c_address + loccunt, 0x80, 6, addr_buf); //erase page
 		}
 	}
+	LeaveMutexDll();
 }
 #if 0
 extern "C" _declspec(dllexport) void IAP_WriteWord(unsigned int address, unsigned int flashdata)
@@ -3486,6 +3535,7 @@ extern "C" _declspec(dllexport) void IAP_WriteWord(unsigned int address, unsigne
 extern "C" _declspec(dllexport) void IAP_Write_16Byte(unsigned int address, unsigned char* flashdata_array)
 {
 	int loccunt = 0;
+	EnterMutexDll();
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
 
@@ -3503,6 +3553,7 @@ extern "C" _declspec(dllexport) void IAP_Write_16Byte(unsigned int address, unsi
 			block_write(smbus_address, ddr_i2c_address + loccunt, 0x81, 5+16, addr_buf);
 		}
 	}
+	LeaveMutexDll();
 }
 
 #if 0
@@ -3533,6 +3584,7 @@ extern "C" _declspec(dllexport) void IAP_Read_16Byte(unsigned int address, unsig
 {
 
 	int loccunt = 0;
+	EnterMutexDll();
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
 
@@ -3550,6 +3602,7 @@ extern "C" _declspec(dllexport) void IAP_Read_16Byte(unsigned int address, unsig
 			block_read_multi_byte(smbus_address, ddr_i2c_address + loccunt, 0xa1, r_data);
 		}
 	}
+	LeaveMutexDll();
 
 }
 
@@ -3638,8 +3691,8 @@ extern "C" _declspec(dllexport) int IAP_Exit(void)
 
 		CloseServiceHandle(schSCManager);
 		dbg_printf("close Service\n\r");
-		return S_FALSE;
-	
+		//return S_FALSE;
+		CloseHandle(m_hHalMutexDll); //close handler
 	return 0;
 }
 
@@ -3725,7 +3778,7 @@ TEST:
 	SmbCtrl_Get_BaseAddress_Intel(&smbus_address);
 	dbg_printf("smbus address:0x%x\n\r", smbus_address);
 	OUTINFO_1_PARAM("smbus address:0x%x\n\r", smbus_address);
-
+	InitMutexDll();
 	return 0;
 }
 

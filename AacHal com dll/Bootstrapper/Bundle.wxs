@@ -27,7 +27,7 @@
       <MsiPackage
         Id="Setup"
         Compressed="yes"
-        SourceFile="..\AacSetup\bin\x86\$(var.Configuration)\AacSetup.msi"
+        SourceFile="..\NuLightSetup\bin\x86\$(var.Configuration)\NuLightSetup.msi"
         InstallCondition='NOT VersionNT64'
         Vital="yes">
       </MsiPackage>
@@ -35,7 +35,7 @@
       <MsiPackage
         Id="Setup64"
         Compressed="yes"
-        SourceFile="..\AacSetup\bin\x64\$(var.Configuration)\AacSetup.msi"
+        SourceFile="..\NuLightSetup\bin\x64\$(var.Configuration)\NuLightSetup.msi"
         InstallCondition='VersionNT64'
         Vital="yes">
       </MsiPackage>

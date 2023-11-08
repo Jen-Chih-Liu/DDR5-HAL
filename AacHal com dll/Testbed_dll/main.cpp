@@ -142,7 +142,7 @@ void main()
 		printf("5, wave\n\r");
 		printf("6, spring\n\r");
 		printf("7, breathing rainbow\n\r");
-		printf("8, strobe rainbow\r");
+		printf("8, strobe rainbow\n\r");
 		printf("9, water\n\r");
 		printf("A, rainbow\n\r");
 		printf("B, double strobe\n\r");
