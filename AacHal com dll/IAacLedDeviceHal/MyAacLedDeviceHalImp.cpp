@@ -78,7 +78,7 @@ volatile char i2c_mem_slot_cnt;
 #define MR56 0x38	//LED Brightness(for Build - in Mode only)
 #define MR62 62
 HANDLE m_hHalMutexDll;
-void InitMutexDll(void)
+int InitMutexDll(void)
 {
 	SECURITY_DESCRIPTOR sid;
 
@@ -94,6 +94,9 @@ void InitMutexDll(void)
 		&sa,              // security attributes
 		FALSE,             // initially not owned
 		MY_MUTEXT_NAME);             // SMBus Mutex name
+	if (m_hHalMutexDll == NULL)
+		return 1;
+	return 0;//pass
 }
 
 void LeaveMutexDll(void)
@@ -1859,6 +1862,7 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 	DeviceEffect* effect = GetEffectInfo(effectId);
 	if (effect != nullptr)
 		hr = E_FAIL;
+	return hr;
 	int i2c_count = 0;
 	//clear led light sync
 	if (i2c_mem_slot_cnt > 1)
@@ -2452,7 +2456,7 @@ extern "C" _declspec(dllexport) int SetEffect(ULONG effectId, ULONG *colors, ULO
 	dbg_printf("effectid%d\n\r", effectId);
 	dbg_printf("numberOfColors%d\n\r", numberOfColors);
 	if (EnterMutexDll() == 1)
-		return 1; //false
+		return GetLastError(); //false
 	int i2c_count = 0;
 	//clear led light sync
 	if (i2c_mem_slot_cnt > 1)
@@ -2722,7 +2726,7 @@ extern "C" _declspec(dllexport) int SetEffect_RGB_SP(ULONG effectId, int R, int 
 	ULONG numberOfColors = 8; 
 	int i2c_count = 0;
 	if (EnterMutexDll() == 1)
-		return 1; //false
+		return  GetLastError(); //false
 	//clear led light sync
 	if (i2c_mem_slot_cnt > 1)
 	{
@@ -3066,7 +3070,7 @@ int SetOff_internal(void)
 extern "C" _declspec(dllexport) int SetOff(void)
 {
 	if (EnterMutexDll() == 1)
-		return 1; //false
+		return  GetLastError(); //false
 
 		int i2c_count = 0;		
 		//clear led light sync
@@ -3253,7 +3257,8 @@ TEST:
 	if (i2c_mem_slot_cnt >= 1)
 	{
 		//initial mux
-		InitMutexDll();
+		if (InitMutexDll() == 1)
+			return GetLastError();
 	}
 
 	return 0;//pass
@@ -3369,7 +3374,7 @@ extern "C" _declspec(dllexport) int SetEffect_block(ULONG effectId, ULONG *color
 {
 #if 1
 	if (EnterMutexDll() == 1)
-		return 1; //false
+		return  GetLastError(); //false
 	dbg_printf("seteffect\n\r");
 	dbg_printf("effectid%d\n\r", effectId);
 	dbg_printf("numberOfColors%d\n\r", numberOfColors);
@@ -3452,7 +3457,7 @@ extern "C" _declspec(dllexport) void IAP_ReadVersion(void)
 {
 	int loccunt = 0;
 	if (EnterMutexDll() == 1)
-		return ; //false
+		return  ; //false
 	//clear address check;
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
@@ -3789,7 +3794,8 @@ TEST:
 	SmbCtrl_Get_BaseAddress_Intel(&smbus_address);
 	dbg_printf("smbus address:0x%x\n\r", smbus_address);
 	OUTINFO_1_PARAM("smbus address:0x%x\n\r", smbus_address);
-	InitMutexDll();
+	if (InitMutexDll() == 1)
+		return GetLastError();
 	return 0;
 }
 
