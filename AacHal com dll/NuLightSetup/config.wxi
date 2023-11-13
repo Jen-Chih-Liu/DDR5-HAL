@@ -2,8 +2,8 @@
 <Include>
 
   <!-- The GUID of your HAL. This GUID is the same as the one defined in config.h of the sulotuion AacHal-->
-  <?define HAL_CLSID = 3CB4CFDA-1D77-4586-AFED-A7FADB4F5477 ?>
-
+  <?define HAL_CLSID = 49BDAD71-2CE2-450D-BCBC-904419C07F5B ?>
+ 
   <!-- The unique GUID of your install package. Please Generate unique GUIDs to replace these-->
 
   <?define MyProductUpgradeCode = EFB88B4B-21A5-4333-B414-0F566F587011 ?>

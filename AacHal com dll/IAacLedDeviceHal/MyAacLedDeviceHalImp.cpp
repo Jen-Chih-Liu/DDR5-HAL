@@ -1780,6 +1780,8 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::GetCapability(BSTR *capability)
 int SetOff_internal(void);
 HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *colors, ULONG numberOfColors)
 {
+	OUTINFO_0_PARAM("seteffect\n\r");
+	OUTINFO_1_PARAM("effectId %d\n\r", effectId);	
 	HRESULT hr = S_OK;
 	EnterMutex();
 #if 0
@@ -1860,11 +1862,15 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 		return S_FALSE;
 #endif
 	DeviceEffect* effect = GetEffectInfo(effectId);
-	if (effect != nullptr)
+	if (effect == nullptr)
+	{
+		OUTINFO_0_PARAM("error nullptr\n\r");
 		hr = E_FAIL;
-	return hr;
+		return hr;
+	}
 	int i2c_count = 0;
 	//clear led light sync
+	OUTINFO_1_PARAM("i2c_mem_slot_cnt %d\n\r", i2c_mem_slot_cnt);
 	if (i2c_mem_slot_cnt > 1)
 	{
 		for (i2c_count = 0; i2c_count < mem_slot; i2c_count++)
@@ -1890,6 +1896,7 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 			if (i2c_addrs[i2c_count] != 0)
 			{
 				dbg_printf("write i2c addrss 0x%x", ddr_i2c_address + i2c_count);
+				OUTINFO_1_PARAM("write i2c addrss 0x%x", ddr_i2c_address + i2c_count);
 				//sync mode
 				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR37, 0x01) == 0xff)
 				{
@@ -1909,8 +1916,8 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 				int j = 0;
 				for (int i = 0; i < (numberOfColors); i = i + 1)
 				{
-					//dbg_printf("numbers:0x%x\n\r", colors[i]);
-					//OUTINFO_1_PARAM("numbers:0x%x\n\r", colors[i]);
+					dbg_printf("numbers:0x%x\n\r", colors[i]);
+					OUTINFO_1_PARAM("numbers:0x%x\n\r", colors[i]);
 #if 0
 					unsigned char temp;
 					temp = write_slave_data(smbus_address, 0x3a, (i * 3) + 0, colors[i] & 0xff); //r
@@ -2160,6 +2167,9 @@ HRESULT MyAacLedDevice::SetEffectOptSpeed(ULONG effectId, ULONG *colors, ULONG n
 {
 	dbg_printf("SetEffectOptSpeed\n\r");
 	dbg_printf("%d\n\r", effectId);
+		OUTINFO_0_PARAM("SetEffectOptSpeed\n\r");
+		OUTINFO_1_PARAM("effectId\n\r", effectId);
+		OUTINFO_1_PARAM("numberOfColors\n\r", numberOfColors);
 	DeviceEffect* effect = GetEffectInfo(effectId);
 	if (effect == nullptr || (!effect->SpeedSupported && !effect->DirectionSupported))
 		return E_FAIL;
@@ -2266,13 +2276,17 @@ HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 	{
 		unsigned char nuvoton_id = 0xff;
 		unsigned char xor = 0xff;
-		read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x03, &nuvoton_id); //check ddr5 id
+		read_slave_data(smbus_address, (ddr_i2c_address + loccunt), 0x03, &nuvoton_id); //check ddr5 id
+		read_slave_data(smbus_address, (ddr_i2c_address + loccunt), 0x03, &nuvoton_id); //check ddr5 id
+		OUTINFO_1_PARAM("ddr_i2c_address + loccunt : 0x%x\n", ddr_i2c_address + loccunt);
+		OUTINFO_1_PARAM("nuvoton id : 0x%x\n", nuvoton_id);
 		write_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, 0x5a);
 		read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, &xor); //check ddr5 id
-		if ((nuvoton_id == 0xda) && (xor == 0x5a))
+		if ((nuvoton_id == 0xda) && (xor == 0xa5))
 		{
 			i2c_addrs[loccunt] = 1; //devices detect
 			i2c_mem_slot_cnt = i2c_mem_slot_cnt + 1;
+			OUTINFO_1_PARAM("capture i2c address: 0x%x\n", ddr_i2c_address + loccunt);
 		}
 		else {
 			i2c_addrs[loccunt] = 0;
@@ -3238,9 +3252,10 @@ TEST:
 		unsigned char nuvoton_id = 0xff;
 		unsigned char xor = 0xff;
 		read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x03, &nuvoton_id); //check ddr5 id
+	    read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x03, &nuvoton_id); //check ddr5 id
 		write_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, 0x5a);
 		read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, &xor); //check ddr5 id
-		if ((nuvoton_id ==0xda)&& (xor == 0x5a))
+		if ((nuvoton_id ==0xda)&& (xor == 0xa5))
 		{
 			i2c_addrs[loccunt] = 1; //devices detect
 			i2c_mem_slot_cnt = i2c_mem_slot_cnt + 1;
