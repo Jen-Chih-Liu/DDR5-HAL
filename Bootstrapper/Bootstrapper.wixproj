@@ -6,7 +6,7 @@
     <ProductVersion>3.10</ProductVersion>
     <ProjectGuid>f68bb5f5-0c10-4eb7-bb49-ceb9261505a5</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>AacSetup</OutputName>
+    <OutputName>NuLightDDR5Setup</OutputName>
     <OutputType>Bundle</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
