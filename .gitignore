@@ -5,6 +5,3 @@
 *.tlog
 *.pdb
 *.mis
-*.pdb
-*.ipdb
-*.iobj

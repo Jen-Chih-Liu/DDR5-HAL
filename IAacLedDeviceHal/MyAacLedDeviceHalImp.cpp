@@ -12,11 +12,17 @@
 #include <debugapi.h> //for DebugView, asus hal debug use
 #include "atlbase.h"
 #include "atlstr.h"
+#include <wbemidl.h>
+#include <comutil.h>
+#pragma comment(lib, "wbemuuid.lib")
+#pragma comment(lib, "comsuppw.lib") 
+#define dbg_printf(fmt, ...) 
 
-//#define dbg_printf(fmt, ...) 
-#define dbg_printf printf
-#define ddr_i2c_address 0x70
-#define mem_slot 8
+const wchar_t* targetManufacturer = L"Team Group";
+const wchar_t* targetPartNumber = L"UD5-7200";
+//#define dbg_printf printf
+#define ddr_i2c_address 0x70 //7BIT
+#define mem_slot 4
 #if 1
 #define OUTINFO_0_PARAM(fmt, ...) 
 #define OUTINFO_1_PARAM(fmt, ...) 
@@ -37,6 +43,7 @@
 
 
 volatile char i2c_addrs[mem_slot] = { 0 };
+volatile char wmi_addrs[mem_slot] = { 0 };
 volatile char i2c_mem_slot_cnt;
 #define GPD_TYPE 40000
 
@@ -2191,11 +2198,195 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::Synchronize(ULONG effectId, ULONGLONG 
 
 	return E_FAIL;
 }
+
+
+
+void wmi_check_dram(void) {
+	HRESULT hres;
+
+	// Initialize COM
+	hres = CoInitializeEx(0, COINIT_MULTITHREADED);
+	if (FAILED(hres)) {
+		wprintf(L"Failed to initialize COM library. Error code = 0x%x\n", hres);
+		return ;
+	}
+
+	// Set general COM security levels
+	hres = CoInitializeSecurity(
+		NULL,
+		-1,
+		NULL,
+		NULL,
+		RPC_C_AUTHN_LEVEL_DEFAULT,
+		RPC_C_IMP_LEVEL_IMPERSONATE,
+		NULL,
+		EOAC_NONE,
+		NULL
+	);
+
+	if (FAILED(hres)) {
+		wprintf(L"Failed to initialize security. Error code = 0x%x\n", hres);
+		CoUninitialize();
+		return ;
+	}
+
+	// Connect to WMI through the IWbemLocator interface
+	IWbemLocator* pLoc = nullptr;
+	hres = CoCreateInstance(
+		CLSID_WbemLocator,
+		0,
+		CLSCTX_INPROC_SERVER,
+		IID_IWbemLocator,
+		(LPVOID*)&pLoc
+	);
+
+	if (FAILED(hres)) {
+		wprintf(L"Failed to create IWbemLocator object. Error code = 0x%x\n", hres);
+		CoUninitialize();
+		return ;
+	}
+
+	IWbemServices* pSvc = nullptr;
+	hres = pLoc->ConnectServer(
+		_bstr_t(L"ROOT\\CIMV2"),
+		NULL,
+		NULL,
+		0,
+		NULL,
+		0,
+		0,
+		&pSvc
+	);
+
+	if (FAILED(hres)) {
+		wprintf(L"Could not connect. Error code = 0x%x\n", hres);
+		pLoc->Release();
+		CoUninitialize();
+		return ;
+	}
+
+	// Set security levels on the proxy
+	hres = CoSetProxyBlanket(
+		pSvc,
+		RPC_C_AUTHN_WINNT,
+		RPC_C_AUTHZ_NONE,
+		NULL,
+		RPC_C_AUTHN_LEVEL_CALL,
+		RPC_C_IMP_LEVEL_IMPERSONATE,
+		NULL,
+		EOAC_NONE
+	);
+
+	if (FAILED(hres)) {
+		wprintf(L"Could not set proxy blanket. Error code = 0x%x\n", hres);
+		pSvc->Release();
+		pLoc->Release();
+		CoUninitialize();
+		return ;
+	}
+
+	// Use the IWbemServices pointer to make requests of WMI
+	IEnumWbemClassObject* pEnumerator = nullptr;
+	hres = pSvc->ExecQuery(
+		bstr_t("WQL"),
+		bstr_t("SELECT Manufacturer, PartNumber, DeviceLocator FROM Win32_PhysicalMemory"),
+		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+		NULL,
+		&pEnumerator
+	);
+
+	if (FAILED(hres)) {
+		wprintf(L"Query for physical memory failed. Error code = 0x%x\n", hres);
+		pSvc->Release();
+		pLoc->Release();
+		CoUninitialize();
+		return ;
+	}
+
+	IWbemClassObject* pclsObj = nullptr;
+	ULONG uReturn = 0;
+
+	while (pEnumerator) {
+		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+
+		if (0 == uReturn) {
+			break;
+		}
+
+		VARIANT vtManufacturer, vtPartNumber, vtSlot;
+		hr = pclsObj->Get(L"Manufacturer", 0, &vtManufacturer, 0, 0);
+		hr = pclsObj->Get(L"PartNumber", 0, &vtPartNumber, 0, 0);
+		hr = pclsObj->Get(L"DeviceLocator", 0, &vtSlot, 0, 0);
+#if 0
+		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
+			wprintf(L"Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
+		}
+#endif
+
+
+		const wchar_t* targetslot0 = L"0";
+		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
+			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
+				wcsstr(vtSlot.bstrVal, targetslot0) != nullptr) {
+				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
+				wmi_addrs[0] = 1;
+			}
+		}
+
+		const wchar_t* targetslot1 = L"1";
+		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
+			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
+				wcsstr(vtSlot.bstrVal, targetslot1) != nullptr) {
+				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
+				wmi_addrs[1] = 1;
+			}
+		}
+		const wchar_t* targetslot2 = L"2";
+		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
+			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
+				wcsstr(vtSlot.bstrVal, targetslot2) != nullptr) {
+				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
+				wmi_addrs[2] = 1;
+			}
+		}
+		const wchar_t* targetslot3 = L"3";
+		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
+			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
+				wcsstr(vtSlot.bstrVal, targetslot3) != nullptr) {
+				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
+				wmi_addrs[3] = 1;
+			}
+		}
+
+		VariantClear(&vtManufacturer);
+		VariantClear(&vtPartNumber);
+		VariantClear(&vtSlot);
+
+		pclsObj->Release();
+	}
+
+	pSvc->Release();
+	pLoc->Release();
+	CoUninitialize();	
+}
+
+
 SC_HANDLE schSCManager;
 HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 {
 	m_deviceControl = deviceControl;
 	m_index = index;
+	//init i2c mem decect array
+	for (int i = 0; i < mem_slot; i++)
+	{
+		i2c_addrs[i] = 0;
+		wmi_addrs[i] = 0;
+	}
+	wmi_check_dram();
+	if ((wmi_addrs[0] == 0) && (wmi_addrs[1] == 0) && (wmi_addrs[2] == 0) && (wmi_addrs[3] == 0))
+	{
+		return S_FALSE;
+	}
 	//CreateDeviceCapability();
 #if 1
 	dbg_printf("initial\n\r");
@@ -2261,11 +2452,7 @@ HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 		OUTINFO_1_PARAM("Error: CreatFile Failed : %d\n", GetLastError());
 		return S_FALSE;
 	}
-	//init i2c mem decect array
-	for (int i =0; i< mem_slot;i++)
-	{ 
-		i2c_addrs[i] = 0;
-	}
+
 	 	
 	i2c_mem_slot_cnt = 0;
 	//unsigned int smbus_address = 0;
@@ -2274,28 +2461,29 @@ HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 	int loccunt = 0;
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
-		unsigned char nuvoton_id = 0xff;
-		unsigned char xor = 0xff;
-		read_slave_data(smbus_address, (ddr_i2c_address + loccunt), 0x03, &nuvoton_id); //check ddr5 id
-		read_slave_data(smbus_address, (ddr_i2c_address + loccunt), 0x03, &nuvoton_id); //check ddr5 id
-		OUTINFO_1_PARAM("ddr_i2c_address + loccunt : 0x%x\n", ddr_i2c_address + loccunt);
-		OUTINFO_1_PARAM("nuvoton id : 0x%x\n", nuvoton_id);
-		write_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, 0x5a);
-		read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, &xor); //check ddr5 id
-		if ((nuvoton_id == 0xda) && (xor == 0xa5))
+		if (wmi_addrs[loccunt]==1)
 		{
-			i2c_addrs[loccunt] = 1; //devices detect
-			i2c_mem_slot_cnt = i2c_mem_slot_cnt + 1;
-			OUTINFO_1_PARAM("capture i2c address: 0x%x\n", ddr_i2c_address + loccunt);
-		}
-		else {
-			i2c_addrs[loccunt] = 0;
+			unsigned char nuvoton_id = 0xff;
+			unsigned char xor = 0xff;
+			read_slave_data(smbus_address, (ddr_i2c_address + loccunt), 0x03, &nuvoton_id); //check ddr5 id
+			read_slave_data(smbus_address, (ddr_i2c_address + loccunt), 0x03, &nuvoton_id); //check ddr5 id
+			OUTINFO_1_PARAM("ddr_i2c_address + loccunt : 0x%x\n", ddr_i2c_address + loccunt);
+			OUTINFO_1_PARAM("nuvoton id : 0x%x\n", nuvoton_id);
+			write_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, 0x5a);
+			read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, &xor); //check ddr5 id
+			if ((nuvoton_id == 0xda) && (xor == 0xa5))
+			{
+				i2c_addrs[loccunt] = 1; //devices detect
+				i2c_mem_slot_cnt = i2c_mem_slot_cnt + 1;
+				OUTINFO_1_PARAM("capture i2c address: 0x%x\n", ddr_i2c_address + loccunt);
+			}
+			else {
+				i2c_addrs[loccunt] = 0;
+			}
 		}
 	}
 
-	if ((i2c_addrs[0] == 0) && (i2c_addrs[1] == 0) && (i2c_addrs[2] == 0) && (i2c_addrs[3] == 0)&&
-		(i2c_addrs[4] == 0) && (i2c_addrs[5] == 0) && (i2c_addrs[6] == 0) && (i2c_addrs[7] == 0)
-		)
+	if ((i2c_addrs[0] == 0) && (i2c_addrs[1] == 0) && (i2c_addrs[2] == 0) && (i2c_addrs[3] == 0))
 	{
 		CloseHandle(hDevice);
 
@@ -3157,7 +3345,16 @@ extern "C" _declspec(dllexport) int SetOff(void)
 extern "C" _declspec(dllexport) int Init(void)
 {
 	unsigned char retry_install = 0;
-	dbg_printf("init\n\r");
+	for (int i = 0; i < mem_slot; i++)
+	{
+		i2c_addrs[i] = 0;
+		wmi_addrs[i] = 0;
+	}
+	wmi_check_dram();
+	if ((wmi_addrs[0] == 0) && (wmi_addrs[1] == 0) && (wmi_addrs[2] == 0) && (wmi_addrs[3] == 0))
+	{
+		return S_FALSE;
+	}
 #if 1
 	dbg_printf("initial\n\r");
 	OUTINFO_0_PARAM("initial\n\r");
@@ -3241,33 +3438,31 @@ TEST:
 	OUTINFO_1_PARAM("smbus address:0x%x\n\r", smbus_address);
 
 	//init i2c mem decect array
-	for (int i = 0; i < mem_slot; i++)
-	{
-		i2c_addrs[i] = 0;
-	}
+
 	i2c_mem_slot_cnt = 0;
 	int loccunt = 0;
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
-		unsigned char nuvoton_id = 0xff;
-		unsigned char xor = 0xff;
-		read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x03, &nuvoton_id); //check ddr5 id
-	    read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x03, &nuvoton_id); //check ddr5 id
-		write_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, 0x5a);
-		read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, &xor); //check ddr5 id
-		if ((nuvoton_id ==0xda)&& (xor == 0xa5))
+		if (wmi_addrs[loccunt] == 1)
 		{
-			i2c_addrs[loccunt] = 1; //devices detect
-			i2c_mem_slot_cnt = i2c_mem_slot_cnt + 1;
-		}
-		else {
-			i2c_addrs[loccunt] = 0;
+			unsigned char nuvoton_id = 0xff;
+			unsigned char xor = 0xff;
+			read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x03, &nuvoton_id); //check ddr5 id
+			read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x03, &nuvoton_id); //check ddr5 id
+			write_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, 0x5a);
+			read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x05, &xor); //check ddr5 id
+			if ((nuvoton_id == 0xda) && (xor == 0xa5))
+			{
+				i2c_addrs[loccunt] = 1; //devices detect
+				i2c_mem_slot_cnt = i2c_mem_slot_cnt + 1;
+			}
+			else {
+				i2c_addrs[loccunt] = 0;
+			}
 		}
 	}
 
-	if ((i2c_addrs[0] == 0) && (i2c_addrs[1] == 0) && (i2c_addrs[2] == 0) && (i2c_addrs[3] == 0)&&
-	    (i2c_addrs[4] == 0) && (i2c_addrs[5] == 0) && (i2c_addrs[6] == 0) && (i2c_addrs[7] == 0)
-		)
+	if ((i2c_addrs[0] == 0) && (i2c_addrs[1] == 0) && (i2c_addrs[2] == 0) && (i2c_addrs[3] == 0))
 		return S_FALSE;
 	if (i2c_mem_slot_cnt >= 1)
 	{
@@ -3297,7 +3492,8 @@ extern "C" _declspec(dllexport) int Exit(void)
 {
 
 	printf("Exit\n\r");
-
+	if ((i2c_addrs[0] == 0) && (i2c_addrs[1] == 0) && (i2c_addrs[2] == 0) && (i2c_addrs[3] == 0))
+		return S_FALSE;
 	DWORD errNum = 0;
 	UCHAR  driverLocation[MAX_PATH];
 #if 0
@@ -3379,9 +3575,9 @@ extern "C" _declspec(dllexport) int Exit(void)
 	
 		CloseHandle(m_hHalMutexDll); //close handler
 		dbg_printf("close Service\n\r");
-		return S_FALSE;
+		return S_OK;
 	
-	return 0;
+
 }
 
 
@@ -3649,6 +3845,8 @@ extern "C" _declspec(dllexport) int IAP_Exit(void)
 
 	DWORD errNum = 0;
 	UCHAR  driverLocation[MAX_PATH];
+	if ((i2c_addrs[0] == 0) && (i2c_addrs[1] == 0) && (i2c_addrs[2] == 0) && (i2c_addrs[3] == 0))
+		return S_FALSE;
 #if  0
 	SC_HANDLE schSCManager;
 	schSCManager = OpenSCManager(NULL,
@@ -3851,9 +4049,7 @@ extern "C" _declspec(dllexport) unsigned char check_boot_ap(void)
 {
 	
 
-	if ((i2c_addrs[0] == 0) && (i2c_addrs[1] == 0) && (i2c_addrs[2] == 0) && (i2c_addrs[3] == 0) &&
-		(i2c_addrs[4] == 0) && (i2c_addrs[5] == 0) && (i2c_addrs[6] == 0) && (i2c_addrs[7] == 0)
-		)
+	if ((i2c_addrs[0] == 0) && (i2c_addrs[1] == 0) && (i2c_addrs[2] == 0) && (i2c_addrs[3] == 0))
 		return 0xff;
 	for (unsigned char loccunt = 0; loccunt < mem_slot; loccunt++)
 	{
