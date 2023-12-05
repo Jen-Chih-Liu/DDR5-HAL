@@ -1,0 +1,7 @@
+C:\Users\MB20\Desktop\DDR5-HAL-main - 20230926 light  t-force hal\AacHal com dll\NuLightSetup\bin\x86\Release\NuLightSetup.msi
+C:\Users\MB20\Desktop\DDR5-HAL-main - 20230926 light  t-force hal\AacHal com dll\NuLightSetup\bin\x86\Release\NuLightSetup.wixpdb
+obj\Release\AppInput.wixobj
+obj\Release\Product.wixobj
+obj\Release\NuLightSetup.wixproj.BindContentsFileListnull.txt
+obj\Release\NuLightSetup.wixproj.BindOutputsFileListnull.txt
+obj\Release\NuLightSetup.wixproj.BindBuiltOutputsFileListnull.txt

@@ -1,0 +1,2 @@
+obj\Debug\AppInput.wixobj
+obj\Debug\Product.wixobj

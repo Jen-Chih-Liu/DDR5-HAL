@@ -2208,7 +2208,7 @@ void wmi_check_dram(void) {
 	hres = CoInitializeEx(0, COINIT_MULTITHREADED);
 	if (FAILED(hres)) {
 		wprintf(L"Failed to initialize COM library. Error code = 0x%x\n", hres);
-		return ;
+		return;
 	}
 
 	// Set general COM security levels
@@ -2227,7 +2227,7 @@ void wmi_check_dram(void) {
 	if (FAILED(hres)) {
 		wprintf(L"Failed to initialize security. Error code = 0x%x\n", hres);
 		CoUninitialize();
-		return ;
+		return;
 	}
 
 	// Connect to WMI through the IWbemLocator interface
@@ -2241,9 +2241,10 @@ void wmi_check_dram(void) {
 	);
 
 	if (FAILED(hres)) {
-		wprintf(L"Failed to create IWbemLocator object. Error code = 0x%x\n", hres);
+		//wprintf(L"Failed to create IWbemLocator object. Error code = 0x%x\n", hres);
+		OUTINFO_1_PARAM("Failed to create IWbemLocator object. Error code = 0x%x\n", hres);
 		CoUninitialize();
-		return ;
+		return;
 	}
 
 	IWbemServices* pSvc = nullptr;
@@ -2259,10 +2260,11 @@ void wmi_check_dram(void) {
 	);
 
 	if (FAILED(hres)) {
-		wprintf(L"Could not connect. Error code = 0x%x\n", hres);
+		//	wprintf(L"Could not connect. Error code = 0x%x\n", hres);
+		OUTINFO_1_PARAM("Could not connect. Error code = 0x%x\n", hres);
 		pLoc->Release();
 		CoUninitialize();
-		return ;
+		return;
 	}
 
 	// Set security levels on the proxy
@@ -2278,11 +2280,12 @@ void wmi_check_dram(void) {
 	);
 
 	if (FAILED(hres)) {
-		wprintf(L"Could not set proxy blanket. Error code = 0x%x\n", hres);
+		//wprintf(L"Could not set proxy blanket. Error code = 0x%x\n", hres);
+		OUTINFO_1_PARAM("Could not set proxy blanket. Error code = 0x%x\n", hres);
 		pSvc->Release();
 		pLoc->Release();
 		CoUninitialize();
-		return ;
+		return;
 	}
 
 	// Use the IWbemServices pointer to make requests of WMI
@@ -2296,11 +2299,12 @@ void wmi_check_dram(void) {
 	);
 
 	if (FAILED(hres)) {
-		wprintf(L"Query for physical memory failed. Error code = 0x%x\n", hres);
+		//wprintf(L"Query for physical memory failed. Error code = 0x%x\n", hres);
+		OUTINFO_1_PARAM("Query for physical memory failed. Error code = 0x%x\n", hres);
 		pSvc->Release();
 		pLoc->Release();
 		CoUninitialize();
-		return ;
+		return;
 	}
 
 	IWbemClassObject* pclsObj = nullptr;
@@ -2322,41 +2326,197 @@ void wmi_check_dram(void) {
 			wprintf(L"Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
 		}
 #endif
-
-
-		const wchar_t* targetslot0 = L"0";
+		const wchar_t* targetslot0 = L"0-DIMM0";
 		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
 			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
 				wcsstr(vtSlot.bstrVal, targetslot0) != nullptr) {
 				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
 				wmi_addrs[0] = 1;
+				OUTINFO_0_PARAM(L"wdm 0\n\r");
 			}
 		}
 
-		const wchar_t* targetslot1 = L"1";
+		const wchar_t* targetslot1 = L"0-DIMM1";
 		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
 			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
 				wcsstr(vtSlot.bstrVal, targetslot1) != nullptr) {
 				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
 				wmi_addrs[1] = 1;
+				OUTINFO_0_PARAM("wdm 1\n\r");
 			}
 		}
-		const wchar_t* targetslot2 = L"2";
+		const wchar_t* targetslot2 = L"1-DIMM0";
 		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
 			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
 				wcsstr(vtSlot.bstrVal, targetslot2) != nullptr) {
 				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
 				wmi_addrs[2] = 1;
+				OUTINFO_0_PARAM("wdm 2\n\r");
 			}
 		}
-		const wchar_t* targetslot3 = L"3";
+		const wchar_t* targetslot3 = L"1-DIMM1";
 		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
 			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
 				wcsstr(vtSlot.bstrVal, targetslot3) != nullptr) {
 				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
 				wmi_addrs[3] = 1;
+				OUTINFO_0_PARAM("wdm 3\n\r");
 			}
 		}
+
+
+
+		VariantClear(&vtManufacturer);
+		VariantClear(&vtPartNumber);
+		VariantClear(&vtSlot);
+
+		pclsObj->Release();
+	}
+
+	pSvc->Release();
+	pLoc->Release();
+	CoUninitialize();
+}
+
+
+void wmi_check_dram_com(void) {
+	HRESULT hres;
+
+	// Connect to WMI through the IWbemLocator interface
+	IWbemLocator* pLoc = nullptr;
+	hres = CoCreateInstance(
+		CLSID_WbemLocator,
+		0,
+		CLSCTX_INPROC_SERVER,
+		IID_IWbemLocator,
+		(LPVOID*)&pLoc
+	);
+
+	if (FAILED(hres)) {
+		//wprintf(L"Failed to create IWbemLocator object. Error code = 0x%x\n", hres);
+		OUTINFO_1_PARAM("Failed to create IWbemLocator object. Error code = 0x%x\n", hres);
+		CoUninitialize();
+		return ;
+	}
+
+	IWbemServices* pSvc = nullptr;
+	hres = pLoc->ConnectServer(
+		_bstr_t(L"ROOT\\CIMV2"),
+		NULL,
+		NULL,
+		0,
+		NULL,
+		0,
+		0,
+		&pSvc
+	);
+
+	if (FAILED(hres)) {
+	//	wprintf(L"Could not connect. Error code = 0x%x\n", hres);
+		OUTINFO_1_PARAM("Could not connect. Error code = 0x%x\n", hres);
+		pLoc->Release();
+		CoUninitialize();
+		return ;
+	}
+
+	// Set security levels on the proxy
+	hres = CoSetProxyBlanket(
+		pSvc,
+		RPC_C_AUTHN_WINNT,
+		RPC_C_AUTHZ_NONE,
+		NULL,
+		RPC_C_AUTHN_LEVEL_CALL,
+		RPC_C_IMP_LEVEL_IMPERSONATE,
+		NULL,
+		EOAC_NONE
+	);
+
+	if (FAILED(hres)) {
+		//wprintf(L"Could not set proxy blanket. Error code = 0x%x\n", hres);
+		OUTINFO_1_PARAM("Could not set proxy blanket. Error code = 0x%x\n", hres);
+		pSvc->Release();
+		pLoc->Release();
+		CoUninitialize();
+		return ;
+	}
+
+	// Use the IWbemServices pointer to make requests of WMI
+	IEnumWbemClassObject* pEnumerator = nullptr;
+	hres = pSvc->ExecQuery(
+		bstr_t("WQL"),
+		bstr_t("SELECT Manufacturer, PartNumber, DeviceLocator FROM Win32_PhysicalMemory"),
+		WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+		NULL,
+		&pEnumerator
+	);
+
+	if (FAILED(hres)) {
+		//wprintf(L"Query for physical memory failed. Error code = 0x%x\n", hres);
+		OUTINFO_1_PARAM("Query for physical memory failed. Error code = 0x%x\n", hres);
+		pSvc->Release();
+		pLoc->Release();
+		CoUninitialize();
+		return ;
+	}
+
+	IWbemClassObject* pclsObj = nullptr;
+	ULONG uReturn = 0;
+	
+	while (pEnumerator) {
+		HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+
+		if (0 == uReturn) {
+			break;
+		}
+
+		VARIANT vtManufacturer, vtPartNumber, vtSlot;
+		hr = pclsObj->Get(L"Manufacturer", 0, &vtManufacturer, 0, 0);
+		hr = pclsObj->Get(L"PartNumber", 0, &vtPartNumber, 0, 0);
+		hr = pclsObj->Get(L"DeviceLocator", 0, &vtSlot, 0, 0);
+#if 0
+		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
+			wprintf(L"Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
+		}
+#endif
+		const wchar_t* targetslot0 = L"0-DIMM0";
+		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
+			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
+				wcsstr(vtSlot.bstrVal, targetslot0) != nullptr) {
+				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
+				wmi_addrs[0] = 1;
+				OUTINFO_0_PARAM(L"wdm 0\n\r");
+			}
+		}
+
+		const wchar_t* targetslot1 = L"0-DIMM1";
+		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
+			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
+				wcsstr(vtSlot.bstrVal, targetslot1) != nullptr) {
+				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
+				wmi_addrs[1] = 1;
+				OUTINFO_0_PARAM("wdm 1\n\r");
+			}
+		}
+		const wchar_t* targetslot2 = L"1-DIMM0";
+		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
+			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
+				wcsstr(vtSlot.bstrVal, targetslot2) != nullptr) {
+				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
+				wmi_addrs[2] = 1;
+				OUTINFO_0_PARAM("wdm 2\n\r");
+			}
+		}
+		const wchar_t* targetslot3 = L"1-DIMM1";
+		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
+			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
+				wcsstr(vtSlot.bstrVal, targetslot3) != nullptr) {
+				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
+				wmi_addrs[3] = 1;
+				OUTINFO_0_PARAM("wdm 3\n\r");
+			}
+		}
+		
+		
 
 		VariantClear(&vtManufacturer);
 		VariantClear(&vtPartNumber);
@@ -2382,7 +2542,7 @@ HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 		i2c_addrs[i] = 0;
 		wmi_addrs[i] = 0;
 	}
-	wmi_check_dram();
+	wmi_check_dram_com();
 	if ((wmi_addrs[0] == 0) && (wmi_addrs[1] == 0) && (wmi_addrs[2] == 0) && (wmi_addrs[3] == 0))
 	{
 		return S_FALSE;
@@ -2460,8 +2620,8 @@ HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 
 	int loccunt = 0;
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
-	{
-		if (wmi_addrs[loccunt]==1)
+	{		
+		if (wmi_addrs[loccunt] == 1)
 		{
 			unsigned char nuvoton_id = 0xff;
 			unsigned char xor = 0xff;
@@ -3353,6 +3513,7 @@ extern "C" _declspec(dllexport) int Init(void)
 	wmi_check_dram();
 	if ((wmi_addrs[0] == 0) && (wmi_addrs[1] == 0) && (wmi_addrs[2] == 0) && (wmi_addrs[3] == 0))
 	{
+		dbg_printf("wmi no found\n\r");
 		return S_FALSE;
 	}
 #if 1
@@ -3442,9 +3603,10 @@ TEST:
 	i2c_mem_slot_cnt = 0;
 	int loccunt = 0;
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
-	{
+	{		
 		if (wmi_addrs[loccunt] == 1)
 		{
+			printf("poll\n\r");
 			unsigned char nuvoton_id = 0xff;
 			unsigned char xor = 0xff;
 			read_slave_data(smbus_address, ddr_i2c_address + loccunt, 0x03, &nuvoton_id); //check ddr5 id
@@ -3455,6 +3617,7 @@ TEST:
 			{
 				i2c_addrs[loccunt] = 1; //devices detect
 				i2c_mem_slot_cnt = i2c_mem_slot_cnt + 1;
+				printf("detect %d\n\r", loccunt);
 			}
 			else {
 				i2c_addrs[loccunt] = 0;
@@ -3463,7 +3626,10 @@ TEST:
 	}
 
 	if ((i2c_addrs[0] == 0) && (i2c_addrs[1] == 0) && (i2c_addrs[2] == 0) && (i2c_addrs[3] == 0))
+	{
+		printf("devcies no found\n\r");
 		return S_FALSE;
+	}
 	if (i2c_mem_slot_cnt >= 1)
 	{
 		//initial mux

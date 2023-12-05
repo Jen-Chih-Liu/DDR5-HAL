@@ -1,0 +1,2 @@
+C:\Users\MB20\Desktop\DDR5-HAL-main - 20230926 light  t-force hal\AacHal com dll\Release\AacHal_x86.dll
+C:\Users\MB20\Desktop\DDR5-HAL-main - 20230926 light  t-force hal\AacHal com dll\Release\MyPortIO_x86.sys
