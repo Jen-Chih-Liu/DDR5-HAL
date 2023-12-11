@@ -1,7 +1,11 @@
 *.obj
+*.iobj
+*.pdb
+*.ipdb
 *.pch
 *.ipch
 *.log
 *.tlog
-*.pdb
 *.mis
+*.db
+*.exp

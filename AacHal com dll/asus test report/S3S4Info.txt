@@ -1,0 +1,297 @@
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	LightingService
+LightingServiceVersion:	
+LightingServiceMsiUninstallString:	
+LightingServiceUninstallString:	
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	SDK(x64)
+SDK Version:	Not found 64bit SDK
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	ENE RGB HAL
+GUID:	{05B8E7A3-7D5D-41DE-B6CC-5E6205837FB7}
+Version:	1.1.37.0
+Manufacturer:	Ene Tech.
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{413fe4b8-1352-4234-a775-ff2f04ad9042}\AacSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\\msiexec.exe /quiet /x E050E98C-5524-4AFB-9E53-97700BEF2C02
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	XXXX
+GUID:	{11111111-1111-1111-1111-111111111111}
+Version:	1.00.00
+Manufacturer:	XXXX XXXX
+Pluging:	423
+UninstallString:	423
+MsiUninstallString:
+	423
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	ENE_DRAM_RGB_AURA42
+GUID:	{321A920D-0755-4501-92A8-4B3482F52410}
+Version:	1.00.02
+Manufacturer:	Ene Tech.
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{f3d7fb09-b93f-4c01-a765-0b0adc5bc746}\AacSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\\msiexec.exe /quiet /x BC5E0A82-C638-44CB-8129-20C8ED70DE7A
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	ENE_EHD_ASM_HAL
+GUID:	{41761CA1-4A2F-437F-A46A-A47D0D73820E}
+Version:	1.00.05
+Manufacturer:	ENE TECHNOLOGY INC.
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{3532d794-73d7-42bd-af02-9f00623dd567}\AacSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {CB19FBA3-7A4F-4D2A-A231-F580B5DCD203}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	NuDDR5Light
+GUID:	{49BDAD71-2CE2-450D-BCBC-904419C07F5B}
+Version:	1.00.00
+Manufacturer:	NUVOTON
+Pluging:	0
+UninstallString:	0
+MsiUninstallString:
+	0
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	AURA DRAM Component
+GUID:	{4BBABBFE-17CA-4AFA-8959-3B1DEFC4421D}
+Version:	1.1.16
+Manufacturer:	ASUS
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{41a78792-5489-400c-a567-b78d40b8c878}\AacSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {9AFE5429-866B-457D-A864-80BCF7672EE8}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	Patriot Viper DRAM RGB
+GUID:	{4dec904b-9381-4e53-9e1f-7f8168a715f3}
+Version:	1.0.9.2
+Manufacturer:	Patriot Memory
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{fdc098ce-d76c-4e2e-a0a6-01a24e9a1f7d}\AacPatriotDRAMSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {1F9C282E-CCB4-4D8E-A5CB-7B74DFCD8C95}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	PHISON HAL
+GUID:	{966E33F0-6786-4B38-AA29-C1B3F6C1955D}
+Version:	1.0.9.0
+Manufacturer:	PHISON Electronics Corp.
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{549da357-1b81-456b-83f2-dcc47c41dfff}\AacPhisonSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\\msiexec.exe /quiet /x 966E33F0-6786-4B38-AA29-C1B3F6C1955D
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	Patriot Viper M2 SSD RGB
+GUID:	{D1545328-2417-4E4A-801A-A7CED274AAE5}
+Version:	1.0.6.4
+Manufacturer:	Patriot Memory
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{3c403389-0bc5-4298-bebf-09de0c0b745d}\AacPatriotM2Setup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {8B4C0A3D-C135-4E1F-98D8-3926494B4D61}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	WD_BLACK AN1500
+GUID:	{D37DAC4A-CEDC-453D-8659-6AD9451C9AA8}
+Version:	1.0.14.0
+Manufacturer:	ENE TECHNOLOGY INC.
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{e42c5874-37b0-4977-9e8d-70bf006e1f76}\AacSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {085E2365-0A70-4230-B664-02D5E4FE7E9C}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	ENE_EHD_M2_HAL
+GUID:	{DF392B70-BBFC-4A99-A269-C0B56CDA7757}
+Version:	1.0.5.0
+Manufacturer:	ENE TECHNOLOGY INC.
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{f009cab7-dc2f-4859-bdfd-b94d0064c20b}\AacSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {37A48B7F-D4EA-4863-844E-A284E2AA3C5D}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	Universal Holtek RGB DRAM
+GUID:	{EE372C60-0016-43B5-865C-D5BB2CDDAE6B}
+Version:	1.0.0.2
+Manufacturer:	PD
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{6870588f-9f28-488b-a169-cf548ad6b393}\AacUHDRAMSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {826388E4-E31F-4514-948B-3BB954FB3EAF}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	GALAX GAMER RGB
+GUID:	{f841becb-3bda-4ab1-9f2e-d667ffc06eba}
+Version:	1.00.02
+Manufacturer:	Galaxy Microsystems Ltd.
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{1257fdeb-ffa3-4e17-9d4b-189075ea3656}\AacGalaxSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {06A16AA8-BBA7-4362-962E-16651962D87C}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	AacVGA
+GUID:	{43b63097-9f58-41cc-9375-bb546ce27f4e}
+Version:	0.0.4.3
+Manufacturer:	ASUSTek COMPUTER INC.
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{7a0d5159-cb5e-4f66-91f8-bab46f864f14}\AacVGASetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\\msiexec.exe /quiet /x 71BB96A6-EAC4-45AE-A17D-D3ED43FF1D14
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	AacAudioHal
+GUID:	{5288EBE0-70CE-435D-B7D5-9E6677475484}
+Version:	1.02.12
+Manufacturer:	ASUSTek COMPUTER INC.
+Pluging:	1
+UninstallString:	"C:\ProgramData\Package Cache\{b96dabae-c7ef-45f2-95ab-1a4d917262a3}\AacHeadSetSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\\msiexec.exe /quiet /x {A3C4120D-8096-4307-91A2-FFE37EBD5A3D}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	ASUS AURA Odd Component
+GUID:	{5CB0E44F-C5D0-4DB9-815E-D179E7579FE8}
+Version:	1.0.8
+Manufacturer:	ASUSTeK COMPUTER INC.
+Pluging:	1
+UninstallString:	"C:\ProgramData\Package Cache\{277875e0-972c-4705-b09c-ca5acf5b2f7c}\AacOddSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\\msiexec.exe /quiet /x B5E322FB-C191-463E-BDDD-4F22290EDFDB
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	ASUS AURA Extension Card HAL
+GUID:	{662181CB-F1F8-4AD8-ABDD-3661A51A85C7}
+Version:	1.1.0.13
+Manufacturer:	ASUSTeK COMPUTER INC.
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{c398adfb-d090-4897-8845-baca53f7ecde}\AacExtCardSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {237E1CAC-1708-4940-AC34-DF15C079AB70}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	ASUS Mouse HAL
+GUID:	{68AB32E8-9C2B-4494-9921-E4E68F8B32A5}
+Version:	1.0.53
+Manufacturer:	ASUSTek COMPUTER INC.
+Pluging:	1
+UninstallString:	"C:\ProgramData\Package Cache\{3dcded5b-10da-4d98-9c1f-c33d25288ebd}\AacMouseSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\\msiexec.exe /quiet /x 1838F91B-D481-45AA-B92F-071C62D0A19A
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	AacDispaly
+GUID:	{9A951164-AD91-46C3-BD8C-43A6B50407AD}
+Version:	1.1.25
+Manufacturer:	ASUSTek COMPUTER INC.
+Pluging:	1
+UninstallString:	"C:\ProgramData\Package Cache\{94267bd0-fa8a-4aa4-925d-ec3e0d130fba}\AacDisplaySetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\\msiexec.exe /quiet /x AFD1CF98-FE97-434C-A095-9F27C5BEA53C
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	ASUS MousePad HAL
+GUID:	{A720E08A-EFAC-49FE-9D01-453C0AA4C638}
+Version:	1.0.1.2
+Manufacturer:	ASUSTek COMPUTER INC.
+Pluging:	1
+UninstallString:	"C:\ProgramData\Package Cache\{0ebcd5fb-7bf9-45b4-a0b6-0932d728e289}\AacMousePadSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\\msiexec.exe /quiet /x 723B40A4-5BF2-4DC6-834A-2ADF75F3CF7E
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	ASUS Keyboard HAL
+GUID:	{AE9DB4C8-4F2A-4756-9B11-2F6D78C61F1A}
+Version:	1.0.50
+Manufacturer:	ASUSTek COMPUTER INC.
+Pluging:	1
+UninstallString:	"C:\ProgramData\Package Cache\{52400cff-4628-4ca3-a922-3767b198c1fd}\AacKbSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {0FA0CDEE-5DC8-421E-A97D-C74FA6E66FC3}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	CosairDram
+GUID:	{B68A5823-FDAC-4FCD-AA99-67FEB583FE29}
+Version:	1.0.13
+Manufacturer:	CORSAIR COMPONENTS INC.
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{8fce5ea9-d56f-4f89-a363-830eceb72c72}\AacSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\\msiexec.exe /quiet /x 376E0869-A4F1-4DC7-A1FD-EBF3AFFEB832
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	ASUS AIOFan HAL
+GUID:	{C7468EC6-2D19-4349-A30F-68A10B329B68}
+Version:	1.1.40.0
+Manufacturer:	ASUSTek COMPUTER INC.
+Pluging:	1
+UninstallString:	"C:\ProgramData\Package Cache\{10f6ee35-55c3-46eb-91a6-816ce9af34c7}\AacAIOFanSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {EAE80DED-1A39-41C5-9F60-87CC947F6454}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	KingstonDram
+GUID:	{d152d981-d7d7-4794-9602-73cfc80d6478}
+Version:	1.1.12
+Manufacturer:	ASUSTek COMPUTER INC.
+Pluging:	0
+UninstallString:	"C:\ProgramData\Package Cache\{2237a879-7fa4-4e21-ae3b-00f6a649b9d9}\AacSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\\msiexec.exe /quiet /x 965CDF5F-901C-476F-B3A8-7396701B1129
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	ASUS MB Peripheral Products
+GUID:	{D351ED35-CF17-4D9F-8202-E96D07479E1F}
+Version:	1.0.32
+Manufacturer:	ASUSTeK Computer Inc.
+Pluging:	1
+UninstallString:	"C:\ProgramData\Package Cache\{243ceb39-3b77-43ab-9135-fddab4ac7caf}\AacTerminalHal.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {BFED9861-7D96-4528-89F1-B090ABBF11A7}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+Name:	ASUS AURA Motherboard HAL
+GUID:	{E7C8DA76-C9B9-4297-8681-DD878330AFE7}
+Version:	1.2.7.0
+Manufacturer:	ASUSTeK COMPUTER INC.
+Pluging:	2
+UninstallString:	"C:\ProgramData\Package Cache\{b42ffcda-b685-4ba0-8640-2971ae4a70c6}\AacMBSetup.exe" /uninstall /quiet
+MsiUninstallString:
+	C:\Windows\system32\msiexec.exe /quiet /x {4EBEAC95-76BC-46A8-8644-6E2F1C87CF70}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
