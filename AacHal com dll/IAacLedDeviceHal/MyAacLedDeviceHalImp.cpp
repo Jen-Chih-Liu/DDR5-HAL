@@ -16,22 +16,23 @@
 #include <comutil.h>
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "comsuppw.lib") 
-#define dbg_printf(fmt, ...) 
+
 
 const wchar_t* targetManufacturer = L"Team Group";
 const wchar_t* targetPartNumber = L"UD5-7200";
+#define dbg_printf(fmt, ...) 
 //#define dbg_printf printf
-#define ddr_i2c_address 0x70 //7BIT
+#define ddr_i2c_address 0x70 //7BIT i2c
 #define mem_slot 4
 
-#if 0
+#if 1
 #define OUTINFO_0_PARAM(fmt, ...) 
 #define OUTINFO_1_PARAM(fmt, ...) 
 #define OUTINFO_2_PARAM(fmt, ...) 
 #define OUTINFO_3_PARAM(fmt, ...)
 #endif 
 
-#if 1
+#if 0
 #define OUTINFO_0_PARAM(fmt) {CHAR sOut[256];CHAR sfmt[50];sprintf_s(sfmt,"%s%s","INFO--",fmt);sprintf_s(sOut,(sfmt));OutputDebugStringW(CA2W(sOut));}    
 #define OUTINFO_1_PARAM(fmt, var) { CHAR sOut[256]; CHAR sfmt[50]; sprintf_s(sfmt, "%s%s", "INFO--", fmt); sprintf_s(sOut, (sfmt), var); OutputDebugStringW(CA2W(sOut)); }
 #define OUTINFO_2_PARAM(fmt, var1, var2) { CHAR sOut[256]; CHAR sfmt[50]; sprintf_s(sfmt, "%s%s", "INFO--", fmt); sprintf_s(sOut, (sfmt), var1, var2); OutputDebugStringW(CA2W(sOut)); }
@@ -2274,6 +2275,7 @@ HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 	{
 		return S_FALSE;
 	}
+
 	//CreateDeviceCapability();
 #if 1
 	dbg_printf("initial	wmi\n\r");
@@ -2347,7 +2349,8 @@ HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 	i2c_mem_slot_cnt = 0;
 	//unsigned int smbus_address = 0;
 	SmbCtrl_Get_BaseAddress_Intel(&smbus_address);
-
+	if (EnterMutex() == 1)
+		return S_FALSE;
 	int loccunt = 0;
 	for (loccunt = 0; loccunt < mem_slot; loccunt++)
 	{		
@@ -2392,7 +2395,7 @@ HRESULT MyAacLedDevice::Init(DeviceLightControl* deviceControl, int index)
 		return S_FALSE;
 	}
 #endif
-
+	LeaveMutex();
 	return S_OK;
 }
 
