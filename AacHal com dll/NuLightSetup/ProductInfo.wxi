@@ -31,6 +31,12 @@
   <?else ?>
     <?define PlatformProgramFilesFolder = "ProgramFilesFolder" ?>
   <?endif ?>
+  
+  <?if $(var.Platform) = x64 ?>
+  <?define PlatformSytemFolder = [System64Folder] ?>
+  <?else ?>
+  <?define PlatformSytemFolder = [SystemFolder] ?>
+  <?endif ?>
 
   <!--Release-->
 

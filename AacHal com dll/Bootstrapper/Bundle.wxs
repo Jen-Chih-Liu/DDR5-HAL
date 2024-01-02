@@ -30,6 +30,7 @@
         SourceFile="..\NuLightSetup\bin\x86\$(var.Configuration)\NuLightSetup.msi"
         InstallCondition='NOT VersionNT64'
         Vital="yes">
+        <MsiProperty  Name="UNINSTALLER_PATH" Value="[WixBundleProviderKey]\$(var.TargetFileName)" />
       </MsiPackage>
 
       <MsiPackage
@@ -38,6 +39,7 @@
         SourceFile="..\NuLightSetup\bin\x64\$(var.Configuration)\NuLightSetup.msi"
         InstallCondition='VersionNT64'
         Vital="yes">
+        <MsiProperty  Name="UNINSTALLER_PATH" Value="[WixBundleProviderKey]\$(var.TargetFileName)" />
       </MsiPackage>
 
     </Chain>

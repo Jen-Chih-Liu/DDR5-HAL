@@ -75,7 +75,7 @@ private:
 
 	HANDLE m_hHalMutex;
 
-	void EnterMutex(void);
+	int EnterMutex(void);
 	void LeaveMutex(void);
 	void InitMutex(void);
 

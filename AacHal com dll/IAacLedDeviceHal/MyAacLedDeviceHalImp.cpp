@@ -23,6 +23,7 @@ const wchar_t* targetPartNumber = L"UD5-7200";
 //#define dbg_printf printf
 #define ddr_i2c_address 0x70 //7BIT
 #define mem_slot 4
+
 #if 0
 #define OUTINFO_0_PARAM(fmt, ...) 
 #define OUTINFO_1_PARAM(fmt, ...) 
@@ -778,30 +779,30 @@ unsigned char intel_write_slave_data(unsigned int SMB_base, unsigned char slave_
 	//delay1us(5);
 	//clear all status bits
 	IOWrite((SMBHSTSTS + SMB_base), 0xff);	
-	delay1us(5);
+	//delay1us(5);
 	// write the offset
 	IOWrite((SMBHSTCMD + SMB_base), offset);
 	// write the slave address 
 	IOWrite((SMBHSTADD + SMB_base), (slave_address << 1));
-	IORead((SMB_base + SMBHSTADD), &temp);
-	delay1us(5);
+	//IORead((SMB_base + SMBHSTADD), &temp);
+	//delay1us(5);
 	// Step 4. Write  Count value to Host Data0 Register
 	IOWrite((SMBHSTDAT0 + SMB_base), wdata); //test count
 
-	delay1us(5);
+	//delay1us(5);
 	//clear all status bits
 
 	IOWrite((SMBHSTSTS + SMB_base), 0xff);
-	delay1us(5);
+	//delay1us(5);
 
 	IOWrite((SMBHSTCNT + SMB_base), hst_cnt_start | smbcmd_bytedata);
-	IORead((SMB_base + SMBHSTCNT), &temp);
+	//IORead((SMB_base + SMBHSTCNT), &temp);
 	//if (temp != 0x0)
 		//printf("SMBHSTCNT error\n\r");
 	
 	while (1)
 	{
-		delay1us(150);
+		//delay1us(150);
 		IORead((SMB_base + SMBHSTSTS), &temp);
 		if ((temp & 0x02) == 0x2)
 		{
@@ -816,7 +817,7 @@ unsigned char intel_write_slave_data(unsigned int SMB_base, unsigned char slave_
 		}
 	}
 
-	delay1us(100);
+//	delay1us(100);
 
 	return 0x00;//pass
 }
@@ -1495,6 +1496,7 @@ unsigned char write_slave_data(unsigned int SMB_base, unsigned char slave_addres
 	}
 	return temp; //false
 }
+
 void block_write(unsigned int SMB_base, unsigned char slave_address, unsigned char index, unsigned char count, unsigned char* buffer)
 {
 	if (chipset == 0)
@@ -1627,7 +1629,8 @@ MyAacLedDevice::~MyAacLedDevice(void)
 
 HRESULT STDMETHODCALLTYPE MyAacLedDevice::GetCapability(BSTR *capability)
 {
-	EnterMutex();
+	if (EnterMutex() == 1)
+		return S_FALSE;
 
 	std::wstring Capability_profile;
 
@@ -1750,84 +1753,9 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 	OUTINFO_0_PARAM("seteffect\n\r");
 	OUTINFO_1_PARAM("effectId %d\n\r", effectId);	
 	HRESULT hr = S_OK;
-	EnterMutex();
-#if 0
-	dbg_printf("initial\n\r");
-	OUTINFO_0_PARAM("initial\n\r");
-	DWORD errNum = 0;
-	UCHAR  driverLocation[MAX_PATH];
-
-	SC_HANDLE schSCManager;
-	schSCManager = OpenSCManager(NULL,
-		NULL,
-		SC_MANAGER_ALL_ACCESS
-	);
-	if (!schSCManager)
-	{
-
-		dbg_printf("Open SC Manager failed! Error = %d \n", GetLastError());
-		OUTINFO_1_PARAM("Open SC Manager failed! Error = %d \n", GetLastError());
+	if (EnterMutex() == 1)
 		return S_FALSE;
-	}
-	dbg_printf("Open SC Manager\n\r");
-	OUTINFO_0_PARAM("Open SC Manager\n\r");
-	if (!GetDriverPath((LPSTR)driverLocation))
-	{
-		return S_FALSE;
-	}
-	dbg_printf("driverLocation:%s\n\r", driverLocation);
-	OUTINFO_1_PARAM("driverLocation:%s\n\r", driverLocation);
-	if (InstallDriver(schSCManager,
-		DRIVER_NAME,
-		(LPSTR)driverLocation
-	))
-	{
 
-		if (!StartDriver(schSCManager, (LPSTR)DRIVER_NAME))
-		{
-			dbg_printf("Unable to start driver. \n");
-			OUTINFO_0_PARAM("Unable to start driver. \n");
-			RemoveDriver(schSCManager, (LPSTR)DRIVER_NAME); //jc can start so to remove the driver
-			return S_FALSE;
-		}
-		dbg_printf("instal and start driver\n\r");
-		OUTINFO_0_PARAM("instal and start driver\n\r");
-	}
-	else
-	{
-
-		RemoveDriver(schSCManager, (LPSTR)DRIVER_NAME);
-		dbg_printf("Unable to install driver. \n");
-		OUTINFO_0_PARAM("Unable to install driver. \n");
-		return S_FALSE;
-	}
-
-	hDevice = CreateFileA(Device_NAME,
-		GENERIC_READ | GENERIC_WRITE,
-		0,
-		NULL,
-		CREATE_ALWAYS,
-		FILE_ATTRIBUTE_NORMAL,
-		NULL);
-	if (hDevice == INVALID_HANDLE_VALUE)
-	{
-		dbg_printf("Error: CreatFile Failed : %d\n", GetLastError());
-		OUTINFO_1_PARAM("Error: CreatFile Failed : %d\n", GetLastError());
-		return S_FALSE;
-	}
-	//unsigned int smbus_address = 0;
-	SmbCtrl_Get_BaseAddress_Intel(&smbus_address);
-	dbg_printf("smbus address:0x%x\n\r", smbus_address);
-	OUTINFO_1_PARAM("smbus address:0x%x\n\r", smbus_address);
-
-	unsigned char temp = read_slave_data(smbus_address, ddr_i2c_address, 0x01); //check ddr5 id
-
-	dbg_printf("read 0x3a:0x%x\n\r", temp);
-	OUTINFO_1_PARAM("read 0x3a:0x%x\n\r", temp);
-
-	if (temp == 0xff)
-		return S_FALSE;
-#endif
 	DeviceEffect* effect = GetEffectInfo(effectId);
 	if (effect == nullptr)
 	{
@@ -1855,6 +1783,22 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 			}
 		}
 	}
+#if 0
+	unsigned char buf[33] = { 0 };
+	buf[0] = 0x00;
+	buf[1] = 0x00;
+	buf[2] = 0x04;
+	int p = 3;
+	for (int z = 0; z < 4; z++)
+	{
+		buf[p] = colors[z] & 0xff;
+		p++;
+		buf[p] = (colors[z] >> 8) & 0xff;
+		p++;
+		buf[p] = (colors[z] >> 16) & 0xff;
+		p++;
+	}
+#endif
 	if ((effectId == 0) || (effectId == 1))
 	{		
 		i2c_count = 0;
@@ -1862,56 +1806,46 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 		{
 			if (i2c_addrs[i2c_count] != 0)
 			{
-				dbg_printf("write i2c addrss 0x%x", ddr_i2c_address + i2c_count);
-				OUTINFO_1_PARAM("write i2c addrss 0x%x", ddr_i2c_address + i2c_count);
+
+#if 0
 				//sync mode
 				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR37, 0x01) == 0xff)
 				{
 					dbg_printf("false\n\r");
 				}
+				block_write(smbus_address, ddr_i2c_address + i2c_count, 0x2f, 15, buf);
+#endif
+
 				//led pixels
-				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR40, 0x00) == 0xff)
+#if 1
+				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR37, 0x01) == 0xff)
 				{
 					dbg_printf("false\n\r");
 				}
-				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR39, 0x0a) == 0xff)
+			    //if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR40, 0x00) == 0xff)
+				//{
+					//dbg_printf("false\n\r");
+				//}
+				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR39, MY_LED_COUNT) == 0xff)
 				{
 					dbg_printf("false\n\r");
 				}
+#endif
 				//dbg_printf("led numbers:0x%x\n\r", numberOfColors);
 				//OUTINFO_1_PARAM("led numbers:0x%x\n\r", numberOfColors);
 				int j = 0;
 				for (int i = 0; i < (numberOfColors); i = i + 1)
 				{
-					dbg_printf("numbers:0x%x\n\r", colors[i]);
-					OUTINFO_1_PARAM("numbers:0x%x\n\r", colors[i]);
-#if 0
-					unsigned char temp;
-					temp = write_slave_data(smbus_address, 0x3a, (i * 3) + 0, colors[i] & 0xff); //r
-					if (temp != 0x0)
-						OUTINFO_0_PARAM("error %d\n\r", i);
-					temp = write_slave_data(smbus_address, 0x3a, (i * 3) + 1, (colors[i] >> 8) & 0xff); //g
-					if (temp != 0x0)
-						OUTINFO_0_PARAM("error %d\n\r", i);
-					temp = write_slave_data(smbus_address, 0x3a, (i * 3) + 2, (colors[i] >> 16) & 0xff);//b
-					if (temp != 0x0)
-						OUTINFO_0_PARAM("error %d\n\r", i);
-#endif
-
-					//delay1us(5000);
-
-
-
 					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR41, (i * 3) + 0) != 0x0)
 					{
 						OUTINFO_0_PARAM("l error %d\n\r", i);
 					}
-
+#if 0
 					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR42, 0x0) != 0x0)
 					{
 						OUTINFO_0_PARAM("h error %d\n\r", i);
 					}
-
+#endif
 					//r
 					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR43, colors[j] & 0xff) != 0)
 					{
@@ -1923,12 +1857,12 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 					{
 						OUTINFO_0_PARAM("l error %d\n\r", i);
 					}
-
+#if 0
 					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR42, 0x0) != 0)
 					{
 						OUTINFO_0_PARAM("h error %d\n\r", i);
 					}
-
+#endif
 					//g
 					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR43, (colors[j] >> 8) & 0xff) != 0x0)
 					{
@@ -1939,25 +1873,31 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 					{
 						OUTINFO_0_PARAM("l error %d\n\r", i);
 					}
-
+#if 0
 					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR42, 0x0) != 0x0)
 					{
 						OUTINFO_0_PARAM("h error %d\n\r", i);
 					}
+#endif
 					//b
 					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR43, (colors[j] >> 16) & 0xff) != 0x0)
 					{
 						OUTINFO_0_PARAM("color error %d\n\r", i);
 					}
 					j++;
+					
 				}
-				delay1us(2000);
+				//delay1us(500);
 				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR36, 0x01) == 0xff)
 				{
 					dbg_printf("false\n\r");
 				}
+
 			}
 		}
+
+		LeaveMutex();
+		return hr;
 	}
 
 	if ((effectId != 0) && (effectId != 1))
@@ -1973,39 +1913,39 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 				//build in mode
 				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, 0x25, 0x02) == 0xff)
 				{
-					printf("false\n\r");
+					dbg_printf("false\n\r");
 				}
 
 				//led pixels
 				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, 0x28, 0x00) == 0xff)
 				{
-					printf("false\n\r");
+					dbg_printf("false\n\r");
 				}
 
-				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, 0x27, 0x0a) == 0xff)
+				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, 0x27, MY_LED_COUNT) == 0xff)
 				{
-					printf("false\n\r");
+					dbg_printf("false\n\r");
 				}
 				//function
 				if (effectId == 2)//FUNC_Breathing
 				{
 					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR38, 0x2) == 0xff)
 					{
-						printf("false\n\r");
+						dbg_printf("false\n\r");
 					}
 				}
 				if (effectId == 3)//FUNC_Strobe
 				{
 					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR38, 0x3) == 0xff)
 					{
-						printf("false\n\r");
+						dbg_printf("false\n\r");
 					}
 				}
 				if (effectId == 4)//FUNC_Cycling
 				{
 					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR38, 0x4) == 0xff)
 					{
-						printf("false\n\r");
+						dbg_printf("false\n\r");
 					}
 				}
 #if 0
@@ -2102,28 +2042,17 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 					}
 				}
 			}
+	LeaveMutex();
+	return hr;
 	}
 
-#if 0
-	CloseHandle(hDevice);
-	StopDriver(schSCManager,
-		DRIVER_NAME
-	);
-	printf("stop driver\n\r");
 
-	RemoveDriver(schSCManager,
-		DRIVER_NAME
-	);
-	printf("remove driver\n\r");
+	//ULONG speed = 0;
+	//ULONG direction = 0;
+	//speed = effect->DefaultSpeedLevel;
+	//direction = effect->DefaultDirectionLevel;
 
-	CloseServiceHandle(schSCManager);
-#endif
-	ULONG speed = 0;
-	ULONG direction = 0;
-	speed = effect->DefaultSpeedLevel;
-	direction = effect->DefaultDirectionLevel;
-
-	return DoSetEffectOptSpeed(effectId, colors, numberOfColors, speed, direction);
+	//return DoSetEffectOptSpeed(effectId, colors, numberOfColors, speed, direction);
 
 	LeaveMutex();
 	return hr;
@@ -2261,6 +2190,20 @@ void wmi_check_dram_com(void) {
 			wprintf(L"Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
 		}
 #endif
+
+		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
+			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr) {
+				//wprintf(L"Partial match found! Manufacturer: %s, Part Number: %s, Slot: %s\n", vtManufacturer.bstrVal, vtPartNumber.bstrVal, vtSlot.bstrVal);
+				wmi_addrs[0] = 1;
+				wmi_addrs[1] = 1;
+				wmi_addrs[2] = 1;
+				wmi_addrs[3] = 1;
+				OUTINFO_0_PARAM("wdm detect\n\r");
+			}
+		}
+
+
+#if 0
 		const wchar_t* targetslot0 = L"0-DIMM0";
 		if (SUCCEEDED(hr) && vtManufacturer.vt == VT_BSTR && vtPartNumber.vt == VT_BSTR && vtSlot.vt == VT_BSTR) {
 			if (wcsstr(vtManufacturer.bstrVal, targetManufacturer) != nullptr && wcsstr(vtPartNumber.bstrVal, targetPartNumber) != nullptr&&
@@ -2299,7 +2242,7 @@ void wmi_check_dram_com(void) {
 			}
 		}
 		
-		
+#endif	
 
 		VariantClear(&vtManufacturer);
 		VariantClear(&vtPartNumber);
@@ -2458,7 +2401,7 @@ void MyAacLedDevice::LeaveMutex(void)
 	ReleaseMutex(m_hHalMutex);
 }
 
-void MyAacLedDevice::EnterMutex(void)
+int MyAacLedDevice::EnterMutex(void)
 {
 	DWORD result;
 	// result = WaitForSingleObject(m_hMutex, 1000);
@@ -2466,9 +2409,11 @@ void MyAacLedDevice::EnterMutex(void)
 
 	if (result == WAIT_OBJECT_0)
 	{
+		return 0;//pass 
 	}
 	else
 	{
+		return 1; //false
 	}
 }
 
@@ -2491,16 +2436,18 @@ void MyAacLedDevice::InitMutex(void)
 }
 
 
-void MyAacLedDevice::EnterSmbusMutex(void)
+void  MyAacLedDevice::EnterSmbusMutex(void)
 {
 	DWORD result;
 	result = WaitForSingleObject(m_hSmbusMutex, MUTEX_WAITTINGTIME);
 
 	if (result == WAIT_OBJECT_0)
 	{
+		
 	}
 	else
 	{
+		
 	}
 }
 
@@ -2619,7 +2566,7 @@ int SetOff_internal(void)
 				dbg_printf("false\n\r");
 			}
 
-			if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR39, 0x0a) == 0xff)
+			if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR39, MY_LED_COUNT) == 0xff)
 			{
 				dbg_printf("false\n\r");
 			}
