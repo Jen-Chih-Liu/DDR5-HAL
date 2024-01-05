@@ -1,0 +1,2 @@
+C:\Users\MB20\Desktop\DDR5-HAL-main - 20230926 light  t-force hal\AacHal\AacHal com dll\Bootstrapper\bin\Release\NuLightDDR5Setup.exe
+C:\Users\MB20\Desktop\DDR5-HAL-main - 20230926 light  t-force hal\AacHal\AacHal com dll\Bootstrapper\bin\Release\NuLightDDR5Setup.wixpdb

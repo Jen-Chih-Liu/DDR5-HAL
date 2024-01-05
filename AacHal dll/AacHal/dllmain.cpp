@@ -13,13 +13,14 @@
 #include <comutil.h>
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "comsuppw.lib") 
-#define dbg_printf(fmt, ...) 
+
 #define MY_MUTEXT_NAME		L"Global\\Access_SMBUS.HTP.Method"
 
 #define MUTEX_WAITTINGTIME 3000
 const wchar_t* targetManufacturer = L"Team Group";
 const wchar_t* targetPartNumber = L"UD5-7200";
-//#define dbg_printf printf
+//#define dbg_printf(fmt, ...) 
+#define dbg_printf printf
 #define ddr_i2c_address 0x70 //7BIT
 #define mem_slot 4
 #if 1
@@ -2445,12 +2446,20 @@ extern "C" _declspec(dllexport) int Init(void)
 		i2c_addrs[i] = 0;
 		wmi_addrs[i] = 0;
 	}
+#if 1 //for test board
+	wmi_addrs[0] == 1;
+	wmi_addrs[1] == 1;
+	wmi_addrs[2] == 1;
+	wmi_addrs[3] == 1;
+#endif 
+#if 0 //for real ram
 	wmi_check_dram();
 	if ((wmi_addrs[0] == 0) && (wmi_addrs[1] == 0) && (wmi_addrs[2] == 0) && (wmi_addrs[3] == 0))
 	{
 		dbg_printf("wmi no found\n\r");
 		return S_FALSE;
 	}
+#endif
 #if 1
 	dbg_printf("initial\n\r");
 	OUTINFO_0_PARAM("initial\n\r");

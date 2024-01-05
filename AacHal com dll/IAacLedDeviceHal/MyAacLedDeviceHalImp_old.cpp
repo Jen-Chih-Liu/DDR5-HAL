@@ -701,7 +701,7 @@ BOOL SmbCtrl_Get_BaseAddress_Intel(volatile unsigned int *u32Addr)
 	return FALSE;
 }
 
-#define MAX_TIMEOUT 10000
+#define MAX_TIMEOUT 1000
 
 #define SMBHSTSTS	0x0    // smbus host status register    
 #define SMBHSTCNT	0x2    // smbus host control register   
@@ -1126,7 +1126,7 @@ void intel_block_read_multi_byte(unsigned int SMB_base, unsigned char slave_addr
 		}
 	}
 	for (int LoopIndex = 0; LoopIndex < 10; LoopIndex++) {
-		delay1us(100);                                               // delay one millisecond
+		delay1us(10);                                               // delay one millisecond
 		IORead(SMB_base + SMBHSTSTS, &SMB_STS);
 		if (SMB_STS & 0x01) continue;                               // HOST is still busy
 		if (SMB_STS & 0x02) break;                                  // Termination of the SMBus command.
@@ -1177,7 +1177,7 @@ void intel_block_write(unsigned int SMB_base, unsigned char slave_address, unsig
 
 	// Step 1. Make sure status bis is clear   
 	do {
-		delay1us(100);
+		delay1us(10);
 		IOWrite((SMBHSTSTS + SMB_base), 0xFF);
 
 		IORead(SMB_base + SMBHSTSTS, &SMB_STS);
@@ -1784,13 +1784,13 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 			}
 		}
 	}
-
+#if 0
 	unsigned char buf[33] = { 0 };
-	buf[0] = 0x31;
+	buf[0] = 0x00;
 	buf[1] = 0x00;
-	buf[2] = 0x01;
+	buf[2] = 0x04;
 	int p = 3;
-	for (int z = 0; z < 3; z++)
+	for (int z = 0; z < 4; z++)
 	{
 		buf[p] = colors[z] & 0xff;
 		p++;
@@ -1799,37 +1799,7 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 		buf[p] = (colors[z] >> 16) & 0xff;
 		p++;
 	}
-
-	unsigned char buf1[33] = { 0 };
-	buf1[0] = 0x31;
-	buf1[1] = 0x00;
-	buf1[2] = 0x04;
-	p = 3;
-	for (int z = 3; z < 6; z++)
-	{
-		buf1[p] = colors[z] & 0xff;
-		p++;
-		buf1[p] = (colors[z] >> 8) & 0xff;
-		p++;
-		buf1[p] = (colors[z] >> 16) & 0xff;
-		p++;
-	}
-
-	unsigned char buf2[33] = { 0 };
-	buf2[0] = 0x21;
-	buf2[1] = 0x00;
-	buf2[2] = 0x07;
-	p = 3;
-	for (int z = 6; z < 8; z++)
-	{
-		buf2[p] = colors[z] & 0xff;
-		p++;
-		buf2[p] = (colors[z] >> 8) & 0xff;
-		p++;
-		buf2[p] = (colors[z] >> 16) & 0xff;
-		p++;
-	}
-
+#endif
 	if ((effectId == 0) || (effectId == 1))
 	{		
 		i2c_count = 0;
@@ -1837,31 +1807,93 @@ HRESULT STDMETHODCALLTYPE MyAacLedDevice::SetEffect(ULONG effectId, ULONG *color
 		{
 			if (i2c_addrs[i2c_count] != 0)
 			{
-				dbg_printf("write i2c addrss 0x%x", ddr_i2c_address + i2c_count);
+
+#if 0
 				//sync mode
 				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR37, 0x01) == 0xff)
 				{
 					dbg_printf("false\n\r");
 				}
-			    if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR40, 0x00) == 0xff)
+				block_write(smbus_address, ddr_i2c_address + i2c_count, 0x2f, 15, buf);
+#endif
+
+				//led pixels
+#if 1
+				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR37, 0x01) == 0xff)
 				{
 					dbg_printf("false\n\r");
 				}
+			    //if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR40, 0x00) == 0xff)
+				//{
+					//dbg_printf("false\n\r");
+				//}
 				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR39, MY_LED_COUNT) == 0xff)
 				{
 					dbg_printf("false\n\r");
 				}
-				delay1us(500);
-				block_write(smbus_address, ddr_i2c_address + i2c_count, 0x2f, 12,buf);
-				delay1us(500);
-				block_write(smbus_address, ddr_i2c_address + i2c_count, 0x2f, 12,buf1);
-				delay1us(500);
-				block_write(smbus_address, ddr_i2c_address + i2c_count, 0x2f, 9, buf2);
-				delay1us(500);
+#endif
+				//dbg_printf("led numbers:0x%x\n\r", numberOfColors);
+				//OUTINFO_1_PARAM("led numbers:0x%x\n\r", numberOfColors);
+				int j = 0;
+				for (int i = 0; i < (numberOfColors); i = i + 1)
+				{
+					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR41, (i * 3) + 0) != 0x0)
+					{
+						OUTINFO_0_PARAM("l error %d\n\r", i);
+					}
+#if 0
+					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR42, 0x0) != 0x0)
+					{
+						OUTINFO_0_PARAM("h error %d\n\r", i);
+					}
+#endif
+					//r
+					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR43, colors[j] & 0xff) != 0)
+					{
+						OUTINFO_0_PARAM("color error %d\n\r", i);
+					}
+
+
+					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR41, (i * 3) + 1) != 0x0)
+					{
+						OUTINFO_0_PARAM("l error %d\n\r", i);
+					}
+#if 0
+					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR42, 0x0) != 0)
+					{
+						OUTINFO_0_PARAM("h error %d\n\r", i);
+					}
+#endif
+					//g
+					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR43, (colors[j] >> 8) & 0xff) != 0x0)
+					{
+						OUTINFO_0_PARAM("color error %d\n\r", i);
+					}
+
+					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR41, (i * 3) + 2) != 0x0)
+					{
+						OUTINFO_0_PARAM("l error %d\n\r", i);
+					}
+#if 0
+					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR42, 0x0) != 0x0)
+					{
+						OUTINFO_0_PARAM("h error %d\n\r", i);
+					}
+#endif
+					//b
+					if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR43, (colors[j] >> 16) & 0xff) != 0x0)
+					{
+						OUTINFO_0_PARAM("color error %d\n\r", i);
+					}
+					j++;
+					
+				}
+				//delay1us(500);
 				if (write_slave_data(smbus_address, ddr_i2c_address + i2c_count, MR36, 0x01) == 0xff)
 				{
 					dbg_printf("false\n\r");
 				}
+
 			}
 		}
 

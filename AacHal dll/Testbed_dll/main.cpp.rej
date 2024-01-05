@@ -1,0 +1,16 @@
+diff a/Testbed_dll/main.cpp b/Testbed_dll/main.cpp	(rejected hunks)
+@@ -89,12 +89,12 @@
+ 	pext_read_slave_data fext_read_slave_data = (pext_read_slave_data)GetProcAddress(hDll, "ext_read_slave_data");
+ 	pext_write_slave_data fext_write_slave_data = (pext_write_slave_data)GetProcAddress(hDll, "ext_write_slave_data");
+ 	pcheck_boot_ap fcheck_boot_ap = (pcheck_boot_ap)GetProcAddress(hDll, "check_boot_ap");
+-	
++#if 0
+ 	if (!fIAP_Init)
+ 	{
+ 		printf("error \n\r");
+ 	}
+-#if 0
++
+ 	else
+ 	{
+ 		if (fIAP_Init() == 1)
